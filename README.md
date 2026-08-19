@@ -7,7 +7,7 @@ leitura e escreve anotações, citações e resenhas.
 
 > Este é o **Módulo 1** de um MVP composto por três módulos. A API que esta
 > interface consome está em um repositório separado:
-> [`biblioteca_virtual_api`](../biblioteca_virtual_api).
+> [`biblioteca_virtual_api`](https://github.com/<seu-usuario>/biblioteca_virtual_api).
 
 ---
 
@@ -78,7 +78,7 @@ Os dados de catálogo vêm da [Open Library](https://openlibrary.org/developers/
 serviço público e gratuito do Internet Archive, que **não exige cadastro nem
 chave de API**. A documentação completa da integração — endpoints consumidos,
 licença dos dados, tratamento de falhas — está no
-[README da API](../biblioteca_virtual_api/README.md#api-externa-utilizada).
+[README da API](https://github.com/<seu-usuario>/biblioteca_virtual_api#api-externa-utilizada).
 
 ---
 
@@ -201,7 +201,7 @@ rola na horizontal.
 - [Docker](https://docs.docker.com/get-docker/) — caminho recomendado
 - Ou [Node.js](https://nodejs.org/) 20+ e npm, para desenvolvimento
 - **A API precisa estar rodando.** Suba primeiro o
-  [`biblioteca_virtual_api`](../biblioteca_virtual_api)
+  [`biblioteca_virtual_api`](https://github.com/<seu-usuario>/biblioteca_virtual_api)
 
 ---
 
