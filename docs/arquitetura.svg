@@ -1,0 +1,169 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 620" width="980" height="620" role="img" aria-labelledby="titulo descricao" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
+  <title id="titulo">Arquitetura do MVP Biblioteca Virtual — Cenário 1.1</title>
+  <desc id="descricao">Diagrama de três módulos. A Interface Vue 3, em um container Docker, comunica-se por REST com a API FastAPI, também em container Docker. A API persiste dados em um banco PostgreSQL em container e consome a API externa pública Open Library. A interface nunca fala diretamente com a Open Library: toda a integração externa passa pela API.</desc>
+
+  <defs>
+    <marker id="seta" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z" fill="#334155" />
+    </marker>
+    <marker id="seta-tracejada" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z" fill="#7c3aed" />
+    </marker>
+  </defs>
+
+  <rect width="980" height="620" fill="#f8fafc" />
+
+  <text x="40" y="46" font-size="22" font-weight="700" fill="#0f172a">Biblioteca Virtual — Arquitetura do MVP</text>
+  <text x="40" y="70" font-size="14" fill="#475569">Cenário 1.1 · Interface (Front-End) → API (Back-End) → API Externa · persistência ligada ao Back-End</text>
+
+  <!-- ============================ MÓDULO 1: Interface ======================= -->
+  <g>
+    <rect x="40" y="120" width="250" height="180" rx="14" fill="#ffffff" stroke="#1a4fd0" stroke-width="2.5" />
+    <rect x="40" y="120" width="250" height="34" rx="14" fill="#e4ebfd" />
+    <path d="M40 148h250" stroke="#1a4fd0" stroke-width="1" opacity="0.35" />
+    <text x="58" y="142" font-size="12" font-weight="700" fill="#1a4fd0">MÓDULO 1 · DESENVOLVIDO</text>
+
+    <text x="58" y="182" font-size="17" font-weight="700" fill="#0f172a">Interface (Front-End)</text>
+    <text x="58" y="204" font-size="13" fill="#334155">Vue 3 · Vite · Pinia · vue-router</text>
+    <text x="58" y="224" font-size="12" fill="#475569">Painel, busca, estante, diário</text>
+    <text x="58" y="242" font-size="12" fill="#475569">4 temas · WCAG 2.1 AA</text>
+
+    <rect x="58" y="256" width="120" height="24" rx="12" fill="#eff6ff" stroke="#93b4f5" />
+    <text x="70" y="272" font-size="11" font-weight="600" fill="#1a4fd0">🐳 Docker + Nginx</text>
+
+    <text x="196" y="272" font-size="11" fill="#64748b">porta 8080</text>
+  </g>
+
+  <!-- ============================ MÓDULO 2: API ============================ -->
+  <g>
+    <rect x="380" y="120" width="250" height="180" rx="14" fill="#ffffff" stroke="#1a4fd0" stroke-width="2.5" />
+    <rect x="380" y="120" width="250" height="34" rx="14" fill="#e4ebfd" />
+    <path d="M380 148h250" stroke="#1a4fd0" stroke-width="1" opacity="0.35" />
+    <text x="398" y="142" font-size="12" font-weight="700" fill="#1a4fd0">MÓDULO 2 · DESENVOLVIDO</text>
+
+    <text x="398" y="182" font-size="17" font-weight="700" fill="#0f172a">API (Back-End)</text>
+    <text x="398" y="204" font-size="13" fill="#334155">Python · FastAPI · SQLAlchemy</text>
+    <text x="398" y="224" font-size="12" fill="#475569">JWT · regras de negócio</text>
+    <text x="398" y="242" font-size="12" fill="#475569">12 rotas REST · Swagger em /docs</text>
+
+    <rect x="398" y="256" width="104" height="24" rx="12" fill="#eff6ff" stroke="#93b4f5" />
+    <text x="410" y="272" font-size="11" font-weight="600" fill="#1a4fd0">🐳 Docker</text>
+
+    <text x="516" y="272" font-size="11" fill="#64748b">porta 8000</text>
+  </g>
+
+  <!-- ============================ PostgreSQL =============================== -->
+  <g>
+    <rect x="380" y="380" width="250" height="120" rx="14" fill="#ffffff" stroke="#1c6b3f" stroke-width="2.5" />
+    <rect x="380" y="380" width="250" height="30" rx="14" fill="#e2f2e8" />
+    <path d="M380 404h250" stroke="#1c6b3f" stroke-width="1" opacity="0.35" />
+    <text x="398" y="400" font-size="12" font-weight="700" fill="#1c6b3f">PERSISTÊNCIA</text>
+
+    <text x="398" y="436" font-size="16" font-weight="700" fill="#0f172a">PostgreSQL 16</text>
+    <text x="398" y="456" font-size="12" fill="#475569">users · library_items · diary_entries</text>
+
+    <rect x="398" y="466" width="104" height="24" rx="12" fill="#f0fdf4" stroke="#86c9a4" />
+    <text x="410" y="482" font-size="11" font-weight="600" fill="#1c6b3f">🐳 Docker</text>
+
+    <text x="516" y="482" font-size="11" fill="#64748b">porta 5432</text>
+  </g>
+
+  <!-- ============================ MÓDULO 3: API externa ==================== -->
+  <g>
+    <rect x="720" y="120" width="222" height="180" rx="14" fill="#faf5ff" stroke="#7c3aed" stroke-width="2.5" stroke-dasharray="7 5" />
+    <rect x="720" y="120" width="222" height="34" rx="14" fill="#ede9fe" />
+    <path d="M720 148h222" stroke="#7c3aed" stroke-width="1" opacity="0.35" />
+    <text x="738" y="142" font-size="12" font-weight="700" fill="#7c3aed">MÓDULO 3 · EXTERNO</text>
+
+    <text x="738" y="182" font-size="17" font-weight="700" fill="#0f172a">Open Library API</text>
+    <text x="738" y="204" font-size="12" fill="#334155">Serviço público do</text>
+    <text x="738" y="221" font-size="12" fill="#334155">Internet Archive</text>
+    <text x="738" y="245" font-size="11.5" fill="#475569">Gratuita · sem chave de API</text>
+    <text x="738" y="263" font-size="11.5" fill="#475569">/search.json · /works/{id}.json</text>
+    <text x="738" y="285" font-size="11" fill="#7c3aed" font-weight="600">openlibrary.org</text>
+  </g>
+
+  <!-- ============================ Conexões ================================= -->
+
+  <!-- Interface <-> API (REST, obrigatória) -->
+  <line x1="292" y1="196" x2="376" y2="196" stroke="#334155" stroke-width="2.5" marker-end="url(#seta)" marker-start="url(#seta)" />
+  <rect x="294" y="152" width="82" height="38" rx="8" fill="#f8fafc" />
+  <text x="335" y="168" font-size="11.5" font-weight="700" fill="#0f172a" text-anchor="middle">REST / JSON</text>
+  <text x="335" y="183" font-size="10.5" fill="#475569" text-anchor="middle">JWT no header</text>
+
+  <!-- API <-> PostgreSQL -->
+  <line x1="505" y1="304" x2="505" y2="376" stroke="#334155" stroke-width="2.5" marker-end="url(#seta)" marker-start="url(#seta)" />
+  <rect x="512" y="322" width="118" height="36" rx="8" fill="#f8fafc" />
+  <text x="520" y="337" font-size="11.5" font-weight="600" fill="#0f172a">SQLAlchemy</text>
+  <text x="520" y="352" font-size="11" fill="#475569">driver psycopg 3</text>
+
+  <!-- API -> Open Library -->
+  <line x1="634" y1="196" x2="714" y2="196" stroke="#7c3aed" stroke-width="2.5" stroke-dasharray="7 5" marker-end="url(#seta-tracejada)" />
+  <rect x="628" y="146" width="92" height="40" rx="8" fill="#f8fafc" />
+  <text x="674" y="162" font-size="12" font-weight="700" fill="#7c3aed" text-anchor="middle">HTTPS</text>
+  <text x="674" y="178" font-size="11" fill="#6d28d9" text-anchor="middle">httpx (async)</text>
+
+  <!-- Regra: sem redirecionamento -->
+  <g>
+    <path d="M165 118 C 165 92, 831 92, 831 118" fill="none" stroke="#b3261e" stroke-width="2" stroke-dasharray="5 4" />
+    <line x1="480" y1="86" x2="516" y2="110" stroke="#b3261e" stroke-width="2.5" />
+    <line x1="516" y1="86" x2="480" y2="110" stroke="#b3261e" stroke-width="2.5" />
+    <rect x="530" y="82" width="290" height="26" rx="8" fill="#fce8e6" stroke="#b3261e" stroke-width="1" />
+    <text x="542" y="99" font-size="11.5" font-weight="600" fill="#8e1e17">A interface nunca chama a Open Library direto</text>
+  </g>
+
+  <!-- ============================ Fluxo de exemplo ========================= -->
+  <g>
+    <rect x="40" y="340" width="250" height="200" rx="14" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" />
+    <text x="58" y="368" font-size="13" font-weight="700" fill="#0f172a">Exemplo: buscar e salvar um livro</text>
+
+    <circle cx="66" cy="392" r="9" fill="#1a4fd0" />
+    <text x="66" y="396" font-size="10" font-weight="700" fill="#ffffff" text-anchor="middle">1</text>
+    <text x="82" y="396" font-size="11.5" fill="#334155">Usuário digita “duna” na interface</text>
+
+    <circle cx="66" cy="420" r="9" fill="#1a4fd0" />
+    <text x="66" y="424" font-size="10" font-weight="700" fill="#ffffff" text-anchor="middle">2</text>
+    <text x="82" y="424" font-size="11.5" fill="#334155">GET /api/books/search?q=duna</text>
+
+    <circle cx="66" cy="448" r="9" fill="#7c3aed" />
+    <text x="66" y="452" font-size="10" font-weight="700" fill="#ffffff" text-anchor="middle">3</text>
+    <text x="82" y="452" font-size="11.5" fill="#334155">API consulta a Open Library</text>
+
+    <circle cx="66" cy="476" r="9" fill="#7c3aed" />
+    <text x="66" y="480" font-size="10" font-weight="700" fill="#ffffff" text-anchor="middle">4</text>
+    <text x="82" y="480" font-size="11.5" fill="#334155">API trata e normaliza o JSON</text>
+
+    <circle cx="66" cy="504" r="9" fill="#1c6b3f" />
+    <text x="66" y="508" font-size="10" font-weight="700" fill="#ffffff" text-anchor="middle">5</text>
+    <text x="82" y="508" font-size="11.5" fill="#334155">POST /api/library grava no banco</text>
+
+    <circle cx="66" cy="528" r="9" fill="#1c6b3f" />
+    <text x="66" y="532" font-size="10" font-weight="700" fill="#ffffff" text-anchor="middle">6</text>
+    <text x="82" y="532" font-size="11.5" fill="#334155">Interface confirma o resultado</text>
+  </g>
+
+  <!-- ============================ Legenda ================================== -->
+  <g>
+    <rect x="680" y="340" width="262" height="200" rx="14" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" />
+    <text x="698" y="368" font-size="13" font-weight="700" fill="#0f172a">Legenda</text>
+
+    <rect x="698" y="382" width="22" height="16" rx="4" fill="#ffffff" stroke="#1a4fd0" stroke-width="2" />
+    <text x="730" y="395" font-size="11.5" fill="#334155">Módulo desenvolvido por mim</text>
+
+    <rect x="698" y="408" width="22" height="16" rx="4" fill="#faf5ff" stroke="#7c3aed" stroke-width="2" stroke-dasharray="4 3" />
+    <text x="730" y="421" font-size="11.5" fill="#334155">Módulo externo consumido</text>
+
+    <rect x="698" y="434" width="22" height="16" rx="4" fill="#ffffff" stroke="#1c6b3f" stroke-width="2" />
+    <text x="730" y="447" font-size="11.5" fill="#334155">Banco de dados</text>
+
+    <line x1="698" y1="468" x2="722" y2="468" stroke="#334155" stroke-width="2.5" marker-end="url(#seta)" />
+    <text x="730" y="472" font-size="11.5" fill="#334155">Comunicação obrigatória</text>
+
+    <line x1="698" y1="492" x2="722" y2="492" stroke="#7c3aed" stroke-width="2.5" stroke-dasharray="5 4" marker-end="url(#seta-tracejada)" />
+    <text x="730" y="496" font-size="11.5" fill="#334155">Consumo de serviço externo</text>
+
+    <text x="698" y="522" font-size="11" fill="#64748b">🐳 = componente com Dockerfile próprio</text>
+  </g>
+
+  <text x="40" y="592" font-size="11" fill="#64748b">Cada módulo desenvolvido vive em um repositório público separado, com Dockerfile na raiz. O docker-compose.yml (API + PostgreSQL) fica na raiz do repositório da API.</text>
+</svg>

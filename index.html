@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <!-- `viewport-fit` + ausência de `maximum-scale` mantém o pinch-zoom livre
+         (SC 1.4.4: o texto precisa chegar a 200% sem perda de conteúdo). -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="description" content="Monte sua estante, acompanhe o progresso de leitura e registre anotações, citações e resenhas de cada livro." />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>Biblioteca Virtual — Diário de Leitura</title>
+    <script>
+      // Aplica o tema salvo ANTES da primeira pintura, para que a página nunca
+      // apareça no tema errado e pisque depois. Roda inline de propósito.
+      (function () {
+        try {
+          var saved = localStorage.getItem('biblioteca:tema')
+          var valid = ['claro', 'escuro', 'tinta', 'vibrante']
+          var theme =
+            valid.indexOf(saved) !== -1
+              ? saved
+              : window.matchMedia('(prefers-color-scheme: dark)').matches
+                ? 'escuro'
+                : 'claro'
+          document.documentElement.dataset.theme = theme
+        } catch (error) {
+          document.documentElement.dataset.theme = 'claro'
+        }
+      })()
+    </script>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.js"></script>
+    <noscript>
+      <p style="padding: 1.5rem; font-family: system-ui, sans-serif">
+        Esta interface precisa de JavaScript para conversar com a API da Biblioteca
+        Virtual. Ative o JavaScript no navegador para continuar.
+      </p>
+    </noscript>
+  </body>
+</html>
