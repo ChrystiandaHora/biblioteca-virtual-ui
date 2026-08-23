@@ -19,3 +19,9 @@ pnpm-debug.log*
 .idea/
 .vscode/
 *.swp
+
+# Documentos de trabalho pessoais — não fazem parte da entrega
+docs/roteiro-video.md
+REPORT.md
+A11Y-DECISIONS.md
+EXCEPTIONS.md

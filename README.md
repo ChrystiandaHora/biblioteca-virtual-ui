@@ -182,13 +182,23 @@ O projeto foi construído seguindo as diretrizes de
 [A11Y.md](https://github.com/fecarrico/A11Y.md/blob/main/docs/en/A11Y.md), no
 perfil **Standard (WCAG 2.1/2.2 nível AA)**.
 
-Três documentos acompanham o código:
+Dez falhas reais de acessibilidade apareceram durante o desenvolvimento e foram
+corrigidas na raiz, não contornadas. As mais instrutivas:
 
-| Documento | Conteúdo |
-| --- | --- |
-| [`REPORT.md`](REPORT.md) | Relatório de conformidade: o que foi verificado, como, e o que continua pendente de validação humana |
-| [`A11Y-DECISIONS.md`](A11Y-DECISIONS.md) | Decisões tomadas entre alternativas igualmente conformes, com a justificativa de cada uma |
-| [`EXCEPTIONS.md`](EXCEPTIONS.md) | Desvios aceitos conscientemente, com responsável e prazo |
+| Falha | Causa raiz | Correção |
+| --- | --- | --- |
+| O anel de foco não alcançava 3:1 sobre os botões primários em nenhum tema | Um anel interno fica sobre a cor do botão, e nenhum tom vencia os quatro | Passou a ser `outline` + `outline-offset`: o anel é desenhado **fora** do elemento, sobre o fundo, e o par validado passa a ser foco-vs-fundo |
+| O skip link não era alcançável com `Tab` | O foco era movido para o `<main>` também na primeira carga. O vue-router aciona o observador **duas vezes** ao subir (rota vazia → rota resolvida), então um guard de "pule a primeira vez" não bastava | O foco só é reposicionado a partir da segunda rota |
+| Dois botões "Salvar alterações" na mesma tela | Visualmente distintos pelo painel, mas idênticos na lista de botões do leitor de tela | Rótulos passaram a dizer o que salvam: "Salvar registro do diário" e "Salvar progresso de leitura" |
+| Os rótulos do gráfico renderizavam a ~9px | O `viewBox` escalava, e o `svg { max-width: 100% }` do reset encolhia o desenho em vez de deixar o contêiner rolar | A largura do `viewBox` acompanha a largura medida do contêiner, garantindo escala 1:1 |
+| Faixas de acionamento das colunas com 23px em telas estreitas | Largura mínima do gráfico era um valor fixo | A largura mínima passou a ser derivada da quantidade de meses |
+| Divisores de menu invisíveis | Contêiner `flex column` com `max-height` e rolagem: os itens encolhem, e uma linha de 1px colapsava para altura zero | `flex-shrink: 0` no divisor, e o mesmo cuidado no cabeçalho e rodapé do diálogo |
+
+O que **não** está verificado, e por quê: teste com leitor de tela real
+(NVDA, VoiceOver, TalkBack), controle por voz, simuladores de deficiência de
+cor, ajuste de espaçamento de texto e auditoria com axe-core dependem de
+validação humana. Verificação por leitura de código não substitui verificação
+por uso.
 
 ### Verificações automatizadas
 
@@ -335,9 +345,6 @@ biblioteca-virtual-ui/
 ├── nginx.conf                  # fallback de SPA + cabeçalhos de cache
 ├── .env.example
 ├── eslint.config.js            # inclui as regras de acessibilidade
-├── REPORT.md                   # relatório de conformidade de acessibilidade
-├── A11Y-DECISIONS.md           # decisões de acessibilidade registradas
-├── EXCEPTIONS.md               # desvios aceitos
 ├── docs/
 │   └── arquitetura.svg         # fluxograma da arquitetura
 ├── scripts/
