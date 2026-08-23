@@ -42,6 +42,7 @@ const PATHS = {
   logout: 'M15 5V3H4v18h11v-2m3-11l4 4-4 4m4-4H9',
   user: 'M12 12a4 4 0 100-8 4 4 0 000 8zm-8 9a8 8 0 0116 0',
   star: 'M12 3.5l2.7 5.6 6.1.9-4.4 4.3 1 6.2-5.4-2.9-5.4 2.9 1-6.2L3.2 10l6.1-.9L12 3.5z',
+  chevronDown: 'M6 9l6 6 6-6',
   arrowLeft: 'M19 12H5m0 0l6-6m-6 6l6 6',
   arrowRight: 'M5 12h14m0 0l-6-6m6 6l-6 6',
   clock: 'M12 7v5l3.5 2M21 12a9 9 0 11-18 0 9 9 0 0118 0z',

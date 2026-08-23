@@ -130,7 +130,15 @@ function handleLogout() {
         >
           <span class="account__avatar" aria-hidden="true">{{ initials }}</span>
           <span class="account__name">{{ auth.firstName || 'Conta' }}</span>
-          <BaseIcon name="user" :size="16" class="account__caret" />
+          <!-- Seta que acompanha o estado do menu: o `aria-expanded` já
+               comunica isso a leitores de tela, e a rotação faz o mesmo
+               visualmente. Um ícone de pessoa aqui não indicava nada. -->
+          <BaseIcon
+            name="chevronDown"
+            :size="16"
+            class="account__caret"
+            :class="{ 'account__caret--open': isMenuOpen }"
+          />
         </BaseButton>
 
         <div v-if="isMenuOpen" id="account-menu" ref="menuRef" class="account__menu">
@@ -288,8 +296,13 @@ function handleLogout() {
   position: relative;
 }
 
+.account__trigger {
+  white-space: nowrap;
+}
+
 .account__avatar {
   display: inline-flex;
+  flex-shrink: 0;
   align-items: center;
   justify-content: center;
   width: 26px;
@@ -306,6 +319,21 @@ function handleLogout() {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.account__caret {
+  color: var(--text-muted);
+  transition: rotate var(--transition);
+}
+
+.account__caret--open {
+  rotate: 180deg;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .account__caret {
+    transition: none;
+  }
 }
 
 @media (max-width: 32rem) {
@@ -350,6 +378,10 @@ function handleLogout() {
 }
 
 .account__divider {
+  /* `flex-shrink: 0` é obrigatório aqui: o menu tem `max-height` com rolagem,
+     e como o conteúdo transborda, os itens flex encolhem — uma linha de 1px
+     colapsava para 0 e o divisor simplesmente não aparecia. */
+  flex-shrink: 0;
   height: 1px;
   background-color: var(--border);
   border: 0;

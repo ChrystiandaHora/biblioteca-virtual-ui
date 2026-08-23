@@ -145,7 +145,11 @@ function onBackdropPointerDown(event) {
 }
 
 .dialog__header {
+  /* O corpo do diálogo é que rola (`flex: 1` + `min-height: 0`); cabeçalho e
+     rodapé precisam de `flex-shrink: 0` para não serem comprimidos quando o
+     conteúdo passa da altura máxima. */
   display: flex;
+  flex-shrink: 0;
   gap: var(--space-4);
   align-items: flex-start;
   justify-content: space-between;
@@ -174,6 +178,7 @@ function onBackdropPointerDown(event) {
 
 .dialog__footer {
   display: flex;
+  flex-shrink: 0;
   flex-wrap: wrap;
   gap: var(--space-3);
   justify-content: flex-end;

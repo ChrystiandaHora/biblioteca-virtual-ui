@@ -111,6 +111,17 @@ const classes = computed(() => [
     color var(--transition);
 }
 
+/* O slot pode conter mais de um elemento — o gatilho do menu de conta, por
+   exemplo, traz avatar + nome + seta. Sem `flex` aqui, esses filhos ficariam
+   inline dentro de um span comum: sem o espaçamento do botão entre eles, e
+   quebrando linha quando não couberem. */
+.btn__text {
+  display: inline-flex;
+  gap: var(--space-2);
+  align-items: center;
+  min-width: 0;
+}
+
 .btn--sm {
   min-height: var(--target-min);
   padding-block: var(--space-1);

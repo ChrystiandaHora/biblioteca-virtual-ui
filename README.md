@@ -5,9 +5,28 @@ Vue 3. É o módulo principal do MVP: a tela onde o leitor busca livros no acerv
 aberto da Open Library, monta a própria estante, acompanha o progresso de cada
 leitura e escreve anotações, citações e resenhas.
 
-> Este é o **Módulo 1** de um MVP composto por três módulos. A API que esta
-> interface consome está em um repositório separado:
-> [`biblioteca_virtual_api`](https://github.com/<seu-usuario>/biblioteca_virtual_api).
+| | |
+| --- | --- |
+| **Módulo** | 1 de 3 — Interface (Front-End), componente principal |
+| **Cenário do enunciado** | 1.1 — Interface → API → API Externa |
+| **Repositório par** | [`biblioteca-virtual-api`](https://github.com/ChrystiandaHora/biblioteca-virtual-api) — a API que esta interface consome |
+| **Stack** | Vue 3 · Vite · Pinia · vue-router · Nginx · Docker |
+| **Acessibilidade** | WCAG 2.1 AA · 4 temas · 180 pares de contraste validados por script |
+
+## Sumário
+
+- [O problema que este projeto resolve](#o-problema-que-este-projeto-resolve)
+- [Arquitetura](#arquitetura)
+- [Telas](#telas)
+- [Funcionalidades](#funcionalidades)
+- [Acessibilidade](#acessibilidade)
+- [Responsividade](#responsividade)
+- [Requisitos](#requisitos)
+- [Como executar](#como-executar)
+- [Primeiros passos na aplicação](#primeiros-passos-na-aplicação)
+- [Estrutura do projeto](#estrutura-do-projeto)
+- [Decisões técnicas](#decisões-técnicas)
+- [Licença](#licença)
 
 ---
 
@@ -78,7 +97,40 @@ Os dados de catálogo vêm da [Open Library](https://openlibrary.org/developers/
 serviço público e gratuito do Internet Archive, que **não exige cadastro nem
 chave de API**. A documentação completa da integração — endpoints consumidos,
 licença dos dados, tratamento de falhas — está no
-[README da API](https://github.com/<seu-usuario>/biblioteca_virtual_api#api-externa-utilizada).
+[README da API](https://github.com/ChrystiandaHora/biblioteca-virtual-api#api-externa-utilizada).
+
+---
+
+## Telas
+
+### Os quatro temas
+
+Cada tema tem os próprios passos de cor, validados contra o próprio fundo — não
+é um tema claro invertido automaticamente.
+
+| Claro | Escuro |
+| --- | --- |
+| ![Painel de leitura no tema claro: fundo branco, quatro blocos de número no topo com páginas lidas em destaque, gráfico de colunas dos livros concluídos por mês e, à direita, a distribuição da estante por estágio de leitura.](docs/screenshots/painel-claro.png) | ![O mesmo painel no tema escuro: fundo azul-escuro com texto claro, mantendo a mesma hierarquia de informação.](docs/screenshots/painel-escuro.png) |
+
+| Tinta | Vibrante |
+| --- | --- |
+| ![O mesmo painel no tema tinta: papel bege sem saturação, tipografia serifada e sem sombras, no estilo de um leitor de tinta eletrônica. Os estágios de leitura continuam distinguíveis porque cada um traz ícone e rótulo próprios.](docs/screenshots/painel-tinta.png) | ![O mesmo painel no tema vibrante: fundo violeta profundo com destaques em turquesa e dourado.](docs/screenshots/painel-vibrante.png) |
+
+O tema **Tinta** é monocromático de propósito: ele funciona como teste vivo da
+regra de que nenhum estado desta interface é comunicado apenas por cor.
+
+### Estante e diário
+
+| | |
+| --- | --- |
+| ![Estante filtrada pelos livros concluídos e ordenada por título. Cada cartão traz capa, título, autoria, selo de estágio com ícone e rótulo, nota em estrelas e um seletor para trocar o status direto na lista.](docs/screenshots/estante.png) | ![Detalhe de um livro em leitura: capa grande, sinopse trazida da Open Library, medidor de progresso com porcentagem e páginas, formulário de atualização e o diário com uma citação e uma anotação registradas.](docs/screenshots/livro-diario.png) |
+| Estante com filtro e ordenação aplicados | Detalhe do livro com o diário de leitura |
+
+### Em 320px de largura
+
+![A mesma estante em uma tela de 320px: layout de coluna única e a navegação principal deslocada para uma barra fixa na base, ao alcance do polegar.](docs/screenshots/mobile-320.png)
+
+Sem rolagem horizontal em 320px nem com zoom de 200%.
 
 ---
 
@@ -201,7 +253,7 @@ rola na horizontal.
 - [Docker](https://docs.docker.com/get-docker/) — caminho recomendado
 - Ou [Node.js](https://nodejs.org/) 20+ e npm, para desenvolvimento
 - **A API precisa estar rodando.** Suba primeiro o
-  [`biblioteca_virtual_api`](https://github.com/<seu-usuario>/biblioteca_virtual_api)
+  [`biblioteca-virtual-api`](https://github.com/ChrystiandaHora/biblioteca-virtual-api)
 
 ---
 
@@ -214,8 +266,8 @@ funciona), então ela entra como argumento de build:
 
 ```bash
 # 1. Clone o repositório
-git clone https://github.com/<seu-usuario>/biblioteca-virtual-web.git
-cd biblioteca-virtual-web
+git clone https://github.com/ChrystiandaHora/biblioteca-virtual-ui.git
+cd biblioteca-virtual-ui
 
 # 2. Construa a imagem apontando para a sua API
 docker build --build-arg VITE_API_URL=http://localhost:8000 -t biblioteca-web .
@@ -278,7 +330,7 @@ Se a API estiver em outra porta, ela precisa autorizar a origem do front no
 ## Estrutura do projeto
 
 ```
-biblioteca-virtual-web/
+biblioteca-virtual-ui/
 ├── Dockerfile                  # build em duas etapas: Node -> Nginx
 ├── nginx.conf                  # fallback de SPA + cabeçalhos de cache
 ├── .env.example
@@ -386,6 +438,9 @@ layout.
 
 ## Licença
 
-MIT.
+Distribuído sob a licença MIT — o texto completo está em
+[`LICENSE`](LICENSE).
 
-Dados de catálogo fornecidos pela Open Library / Internet Archive.
+Os dados de catálogo não pertencem a este projeto: são fornecidos pela
+Open Library / Internet Archive. Detalhes da licença no
+[README da API](https://github.com/ChrystiandaHora/biblioteca-virtual-api#api-externa-utilizada).
