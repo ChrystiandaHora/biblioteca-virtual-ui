@@ -695,11 +695,59 @@ const diaryEntries = computed(() => item.value?.diary_entries ?? [])
   gap: var(--space-4);
 }
 
+/* Os três campos têm dicas de alturas diferentes — duas linhas no estágio, uma
+   no total de páginas, nenhuma na página atual. Como cada campo empilha
+   `rótulo → dica → controle` por conta própria, os controles paravam em três
+   alturas distintas.
+
+   O subgrid resolve na raiz: as quatro faixas (rótulo · dica · controle · erro)
+   passam a ser as MESMAS para as três colunas, então a faixa da dica tem a
+   altura da maior e os controles se alinham sozinhos. */
 .progress-form__grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
   gap: var(--space-3);
   align-items: start;
+}
+
+/* O `@supports` não é zelo decorativo: sem subgrid, o `gap: 0` abaixo valeria
+   de verdade e espremeria rótulo, dica e controle uns nos outros. Sem suporte,
+   fica o empilhamento antigo — desalinhado, mas legível. */
+@supports (grid-template-rows: subgrid) {
+  .progress-form__grid {
+    grid-template-rows: auto auto auto auto;
+    gap: var(--space-2) var(--space-3);
+  }
+
+  .progress-form__grid > :deep(.field),
+  .progress-form__grid > :deep(.select-field) {
+    display: grid;
+    grid-row: span 4;
+    grid-template-rows: subgrid;
+    /* No eixo subgridado quem manda é o `row-gap` do pai. */
+    gap: 0;
+  }
+
+  .progress-form__grid :deep(.field__label),
+  .progress-form__grid :deep(.select-field__label) {
+    grid-row: 1;
+  }
+
+  .progress-form__grid :deep(.field__hint),
+  .progress-form__grid :deep(.select-field__hint) {
+    grid-row: 2;
+  }
+
+  .progress-form__grid :deep(.field__control),
+  .progress-form__grid :deep(.select-field__wrapper) {
+    grid-row: 3;
+  }
+
+  /* O erro ganha faixa própria, compartilhada pelas três colunas: uma mensagem
+     em qualquer campo empurra a linha inteira, e os controles seguem alinhados. */
+  .progress-form__grid :deep(.field__error) {
+    grid-row: 4;
+  }
 }
 
 .progress-form__preview {
