@@ -85,6 +85,15 @@ const PREFIXES = { success: 'Sucesso:', error: 'Erro:', info: 'Aviso:' }
   pointer-events: none;
 }
 
+/* Abaixo de 48rem a navegação é uma barra inferior fixa. Sem este recuo o
+   toast cobre a navegação — e erros não somem sozinhos (ttl 0), então a barra
+   ficaria bloqueada até alguém achar o botão de fechar. */
+@media (max-width: 47.999rem) {
+  .toast-region {
+    bottom: calc(var(--nav-mobile-height) + env(safe-area-inset-bottom, 0px));
+  }
+}
+
 @media (min-width: 40rem) {
   .toast-region {
     left: auto;

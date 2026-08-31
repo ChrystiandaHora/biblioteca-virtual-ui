@@ -142,6 +142,7 @@ const excerpt = computed(() => {
 .entry__content {
   font-size: var(--text-sm);
   white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 
 .entry__quote {
@@ -156,6 +157,7 @@ const excerpt = computed(() => {
 
 .entry__quote p {
   white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 
 .entry__actions {

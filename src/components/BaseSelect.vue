@@ -82,6 +82,9 @@ const describedBy = computed(() => (props.hint ? hintId : undefined))
   width: 100%;
   min-height: var(--target);
   padding: var(--space-2) var(--space-6) var(--space-2) var(--space-3);
+  /* O `<select>` é a única exceção ao `button { cursor: pointer }` do base.css:
+     o navegador lhe dá `cursor: default`, que não parece acionável. */
+  cursor: pointer;
   color: var(--text);
   background-color: var(--surface);
   border: 1px solid var(--border-strong);

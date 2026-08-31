@@ -29,7 +29,7 @@ const mainRef = ref(null)
 const routeAnnouncement = ref('')
 
 /**
- * Nome da última rota vista, usado para separar "abrir a aplicação" de
+ * Caminho da última tela vista, usado para separar "abrir a aplicação" de
  * "navegar dentro dela".
  *
  * Mover o foco para o `<main>` no carregamento inicial seria errado: o foco
@@ -40,8 +40,11 @@ const routeAnnouncement = ref('')
  * O roteador aciona este watcher duas vezes ao subir — primeiro com a rota
  * inicial vazia (`route.name === undefined`) e depois com a rota resolvida —
  * então um simples "pule a primeira vez" não bastaria.
+ *
+ * Também é por isso que comparamos o **nome** da rota, e não o `fullPath`:
+ * mudar um filtro reescreve a query na mesma tela, e isso não é navegação.
  */
-let lastRouteName = null
+let lastScreenPath = null
 
 const BASE_TITLE = 'Biblioteca Virtual'
 
@@ -57,9 +60,14 @@ watch(
     const title = route.meta.title
     document.title = title ? `${title} · ${BASE_TITLE}` : BASE_TITLE
 
-    const isOpeningTheApp = lastRouteName === null
-    lastRouteName = route.name ?? null
-    if (isOpeningTheApp || route.name === undefined) return
+    const isOpeningTheApp = lastScreenPath === null
+    // Filtros e paginação reescrevem só a query, com `router.replace`, sem sair
+    // da tela. Tratar isso como navegação arrancaria o foco do `<select>` que a
+    // pessoa acabou de usar e anunciaria uma carga que não aconteceu.
+    // `path` (e não `name`) porque abrir outro livro reusa o nome `livro`.
+    const isSameScreen = !isOpeningTheApp && route.path === lastScreenPath
+    if (route.name !== undefined) lastScreenPath = route.path
+    if (isOpeningTheApp || isSameScreen || route.name === undefined) return
 
     await nextTick()
 
@@ -165,7 +173,7 @@ watch(
 /* Espaço para a barra de navegação inferior das telas estreitas. */
 @media (max-width: 47.999rem) {
   .main {
-    padding-bottom: calc(var(--space-7) + 64px);
+    padding-bottom: calc(var(--space-7) + var(--nav-mobile-height));
   }
 }
 

@@ -57,6 +57,10 @@
 
   --container: 76rem;
   --transition: 160ms ease;
+
+  /* Altura da barra de navegação inferior (telas < 48rem). Quem flutua acima
+     dela — conteúdo e toasts — reserva esse espaço. */
+  --nav-mobile-height: 64px;
 }
 
 /* --------------------------------- claro --------------------------------- */

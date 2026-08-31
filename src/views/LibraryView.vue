@@ -70,6 +70,13 @@ const busyItemId = ref(null)
 const itemPendingRemoval = ref(null)
 const isRemoving = ref(false)
 
+/**
+ * Alvo de reserva do foco ao fechar a confirmação de remoção: o botão que
+ * abriu o diálogo é a lixeira da linha, e a própria confirmação a apaga. Sem
+ * isto o foco cairia no <body>.
+ */
+const resultsRef = ref(null)
+
 const hasActiveFilters = computed(
   () =>
     Boolean(filters.value.q) ||
@@ -114,8 +121,10 @@ function applyFilters() {
 }
 
 function clearFilters() {
+  // Só zera os filtros: o watcher abaixo observa justamente esses campos e já
+  // chama `applyFilters`. Chamar aqui também dispararia duas requisições e dois
+  // `router.replace` para a mesma ação.
   filters.value = { q: '', status: '', minRating: '', orderBy: 'recentes', direction: 'desc' }
-  applyFilters()
   toasts.info('Filtros limpos.')
 }
 
@@ -264,9 +273,11 @@ const resultAnnouncement = computed(() => {
 
     <section
       v-else-if="libraryPage"
+      ref="resultsRef"
       class="library__results"
       :class="{ 'library__results--refreshing': isLoading }"
       aria-label="Livros da estante"
+      tabindex="-1"
     >
       <ul class="library__list">
         <BookListItem
@@ -296,6 +307,7 @@ const resultAnnouncement = computed(() => {
       alert
       title="Remover este livro da estante?"
       :description="`“${itemPendingRemoval.title}” e todos os registros do diário dele serão apagados. Não há como desfazer.`"
+      :return-focus-to="() => resultsRef"
       @close="itemPendingRemoval = null"
     >
       <p class="library__confirm-detail">

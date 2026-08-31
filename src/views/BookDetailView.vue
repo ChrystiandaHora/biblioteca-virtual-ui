@@ -167,6 +167,12 @@ const diaryFormRef = ref(null)
 const editingEntry = ref(null)
 const isSavingEntry = ref(false)
 const entryPendingDeletion = ref(null)
+
+/**
+ * Reserva de foco da confirmação de exclusão: o botão de apagar vive dentro do
+ * cartão que a ação remove, então ele não existe mais quando o diálogo fecha.
+ */
+const diaryListRef = ref(null)
 const isDeletingEntry = ref(false)
 
 async function handleDiarySubmit(payload) {
@@ -412,7 +418,7 @@ const diaryEntries = computed(() => item.value?.diary_entries ?? [])
             />
           </div>
 
-          <div class="diary__list-wrapper">
+          <div ref="diaryListRef" class="diary__list-wrapper" tabindex="-1">
             <h3 class="diary__list-title">Registros</h3>
 
             <EmptyState
@@ -458,6 +464,7 @@ const diaryEntries = computed(() => item.value?.diary_entries ?? [])
         alert
         title="Apagar este registro do diário?"
         description="O texto será removido permanentemente."
+        :return-focus-to="() => diaryListRef"
         @close="entryPendingDeletion = null"
       >
         <blockquote class="detail__confirm-quote">
@@ -621,6 +628,8 @@ const diaryEntries = computed(() => item.value?.diary_entries ?? [])
   font-size: var(--text-sm);
   line-height: 1.7;
   white-space: pre-line;
+  /* Texto externo da Open Library: não temos controle sobre o que vem. */
+  overflow-wrap: anywhere;
 }
 
 .detail__loading {
@@ -743,6 +752,7 @@ const diaryEntries = computed(() => item.value?.diary_entries ?? [])
   margin: 0;
   font-size: var(--text-sm);
   font-style: italic;
+  overflow-wrap: anywhere;
   border-left: 3px solid var(--border-strong);
 }
 </style>

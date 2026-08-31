@@ -32,8 +32,10 @@ function focusableWithin(container) {
  * @param {import('vue').Ref<HTMLElement | null>} containerRef Elemento do diálogo.
  * @param {object} options
  * @param {() => void} options.onEscape Chamado ao pressionar Esc.
+ * @param {() => HTMLElement | null | undefined} options.fallbackFocus
+ *   Alvo do foco quando o gatilho não sobreviveu à ação confirmada.
  */
-export function useFocusTrap(containerRef, { onEscape } = {}) {
+export function useFocusTrap(containerRef, { onEscape, fallbackFocus } = {}) {
   let previouslyFocused = null
 
   function handleKeydown(event) {
@@ -60,10 +62,13 @@ export function useFocusTrap(containerRef, { onEscape } = {}) {
     const last = focusable.at(-1)
     const active = document.activeElement
 
+    // Os dois ramos precisam tratar "foco fora do contêiner": senão o Tab para
+    // frente escapa para o fundo, que é justamente o que o aprisionamento
+    // deveria impedir.
     if (event.shiftKey && (active === first || !container.contains(active))) {
       event.preventDefault()
       last.focus()
-    } else if (!event.shiftKey && active === last) {
+    } else if (!event.shiftKey && (active === last || !container.contains(active))) {
       event.preventDefault()
       first.focus()
     }
@@ -84,9 +89,18 @@ export function useFocusTrap(containerRef, { onEscape } = {}) {
 
   onBeforeUnmount(() => {
     document.removeEventListener('keydown', handleKeydown, true)
+
     // Devolve o foco a quem abriu o diálogo.
     if (previouslyFocused instanceof HTMLElement && document.contains(previouslyFocused)) {
       previouslyFocused.focus()
+      return
     }
+
+    // Em confirmação destrutiva o gatilho costuma ser justamente o que a ação
+    // apagou — o botão de lixeira da linha removida, por exemplo. Sem um alvo
+    // de reserva o foco cai no <body> e a pessoa volta ao topo do documento
+    // sem aviso nenhum.
+    const fallback = fallbackFocus?.()
+    if (fallback instanceof HTMLElement) fallback.focus()
   })
 }

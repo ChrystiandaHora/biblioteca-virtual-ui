@@ -222,6 +222,8 @@ const showProgress = computed(
 .book-item__status-select {
   min-height: var(--target);
   padding: var(--space-2) var(--space-3);
+  /* O navegador dá `cursor: default` ao <select>, que não parece acionável. */
+  cursor: pointer;
   font-size: var(--text-xs);
   font-weight: 600;
   color: var(--text);
