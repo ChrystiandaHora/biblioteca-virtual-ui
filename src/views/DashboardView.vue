@@ -57,7 +57,7 @@ const topAuthorMax = computed(() => Math.max(1, ...topAuthors.value.map((a) => a
       <BaseButton :to="{ name: 'buscar' }" icon="search">Buscar livros</BaseButton>
     </header>
 
-    <SkeletonList v-if="isFirstLoad && isLoading" :count="3" label="Carregando o painel…" />
+    <SkeletonList v-if="isFirstLoad && isLoading" variant="dashboard" label="Carregando o painel…" />
 
     <EmptyState
       v-else-if="error"

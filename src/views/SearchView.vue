@@ -53,9 +53,32 @@ const {
 
 const hasSearched = ref(Boolean(query.value.trim()))
 
+/**
+ * Erro de validação do campo de busca.
+ *
+ * Era um toast, que aparece no canto oposto da tela — longe do campo que
+ * precisa ser corrigido, e sem marcar o próprio campo como inválido. A regra
+ * ("mínimo de 2 caracteres") já está escrita logo abaixo do input; o erro
+ * pertence ao mesmo lugar.
+ */
+const queryError = ref('')
+
+/** Para devolver o foco ao campo quando a validação falha. */
+const queryInputRef = ref(null)
+
+// O erro some assim que a pessoa começa a corrigir: manter a mensagem enquanto
+// o campo já está válido seria ruído.
+watch(query, () => {
+  if (queryError.value) queryError.value = ''
+})
+
 /** Anúncio para leitores de tela quando a busca retorna. */
 const resultAnnouncement = computed(() => {
   if (isLoading.value) return 'Buscando…'
+  // O erro vem antes do resultado de propósito: `results` guarda a busca
+  // anterior bem-sucedida, então sem este ramo a região viva continuaria
+  // anunciando a contagem antiga enquanto a tela mostra a falha.
+  if (error.value) return 'A busca não pôde ser concluída. Tente novamente.'
   if (!results.value) return ''
   const total = results.value.total
   if (total === 0) return `Nenhum livro encontrado para "${results.value.query}".`
@@ -78,9 +101,11 @@ async function loadOwnedKeys() {
 function runSearch() {
   const trimmed = query.value.trim()
   if (trimmed.length < 2) {
-    toasts.error('Digite pelo menos 2 caracteres para buscar.')
+    queryError.value = 'Digite pelo menos 2 caracteres para buscar.'
+    queryInputRef.value?.focus()
     return
   }
+  queryError.value = ''
   hasSearched.value = true
   // A busca fica na URL: o resultado é compartilhável e o botão "voltar" do
   // navegador se comporta como a pessoa espera.
@@ -161,20 +186,27 @@ watch(
         <label class="search__label" for="search-query">Título, autor ou assunto</label>
         <div class="search__input-row">
           <div class="search__input-wrapper">
-            <BaseIcon name="search" :size="18" class="search__input-icon" />
+            <BaseIcon name="search" size="md" class="search__input-icon" />
             <input
               id="search-query"
+              ref="queryInputRef"
               v-model="query"
               class="search__input"
+              :class="{ 'search__input--invalid': queryError }"
               type="search"
               name="q"
               autocomplete="off"
               placeholder="Ex.: Dom Casmurro"
-              aria-describedby="search-hint"
+              :aria-invalid="queryError ? 'true' : undefined"
+              :aria-describedby="queryError ? 'search-error search-hint' : 'search-hint'"
             />
           </div>
           <BaseButton type="submit" icon="search" :loading="isLoading">Buscar</BaseButton>
         </div>
+        <p v-if="queryError" id="search-error" class="search__error" role="alert">
+          <BaseIcon name="warning" size="sm" />
+          {{ queryError }}
+        </p>
         <p id="search-hint" class="search__hint">
           Mínimo de 2 caracteres. A busca é feita ao enviar o formulário.
         </p>
@@ -336,6 +368,21 @@ watch(
 .search__hint {
   font-size: var(--text-xs);
   color: var(--text-muted);
+}
+
+/* Mesma linguagem do BaseField: ícone + texto + cor, nunca só a cor. */
+.search__error {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--danger);
+}
+
+.search__input--invalid {
+  border-color: var(--danger);
+  border-width: 2px;
 }
 
 .search__suggestions {

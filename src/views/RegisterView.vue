@@ -40,6 +40,22 @@ const errorRef = ref(null)
 
 const fieldErrors = ref({ name: '', email: '', password: '', passwordConfirmation: '' })
 
+const formRef = ref(null)
+
+/**
+ * Leva o foco ao primeiro campo inválido.
+ *
+ * Sem isto, enviar o formulário vazio era completamente silencioso para quem
+ * usa leitor de tela: as mensagens apareciam nos campos, mas o foco continuava
+ * no botão e nada entrava em região viva. O caminho de erro da API já fazia
+ * isso; a validação local não fazia.
+ */
+async function focusFirstInvalidField() {
+  await nextTick()
+  formRef.value?.querySelector('[aria-invalid="true"]')?.focus()
+}
+
+
 const passwordHint = computed(() => `Mínimo de ${MIN_PASSWORD_LENGTH} caracteres.`)
 
 function validate() {
@@ -64,7 +80,10 @@ function validate() {
 
 async function handleSubmit() {
   formError.value = ''
-  if (!validate()) return
+  if (!validate()) {
+    await focusFirstInvalidField()
+    return
+  }
 
   isSubmitting.value = true
   try {
@@ -101,9 +120,9 @@ async function handleSubmit() {
         </p>
       </header>
 
-      <form class="auth__form" novalidate @submit.prevent="handleSubmit">
+      <form ref="formRef" class="auth__form" novalidate @submit.prevent="handleSubmit">
         <div v-if="formError" ref="errorRef" class="auth__alert" role="alert" tabindex="-1">
-          <BaseIcon name="warning" :size="18" />
+          <BaseIcon name="warning" size="md" />
           <p><span class="auth__alert-prefix">Erro:</span> {{ formError }}</p>
         </div>
 

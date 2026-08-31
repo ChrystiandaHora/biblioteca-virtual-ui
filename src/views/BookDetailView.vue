@@ -8,7 +8,7 @@
  * um enxame de anúncios em região viva.
  */
 
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import BaseButton from '@/components/BaseButton.vue'
@@ -127,20 +127,29 @@ const previewPercent = computed(() => {
 
 async function saveProgress() {
   progressError.value = ''
+  progressFieldErrors.value = { currentPage: '', totalPages: '' }
 
   const total = draft.value.totalPages === '' ? null : Number(draft.value.totalPages)
   const current = Number(draft.value.currentPage || 0)
 
+  // As três mensagens sempre souberam a qual campo pertencem; só não diziam.
+  // Escritas apenas no alerta do formulário, o input culpado ficava sem
+  // `aria-invalid`, sem borda de erro e sem `aria-describedby` — o BaseField
+  // suporta os três.
   if (total !== null && (!Number.isInteger(total) || total <= 0)) {
-    progressError.value = 'O total de páginas deve ser um número inteiro maior que zero.'
-    return
+    progressFieldErrors.value.totalPages =
+      'O total de páginas deve ser um número inteiro maior que zero.'
+  } else if (!Number.isInteger(current) || current < 0) {
+    progressFieldErrors.value.currentPage = 'A página atual deve ser um número inteiro positivo.'
+  } else if (total !== null && current > total) {
+    progressFieldErrors.value.currentPage = `A página atual não pode passar de ${total.toLocaleString('pt-BR')}.`
   }
-  if (!Number.isInteger(current) || current < 0) {
-    progressError.value = 'A página atual deve ser um número inteiro positivo.'
-    return
-  }
-  if (total !== null && current > total) {
-    progressError.value = `A página atual não pode passar de ${total.toLocaleString('pt-BR')}.`
+
+  const firstError = Object.values(progressFieldErrors.value).find(Boolean)
+  if (firstError) {
+    progressError.value = firstError
+    await nextTick()
+    progressFormRef.value?.querySelector('[aria-invalid="true"]')?.focus()
     return
   }
 
@@ -165,7 +174,24 @@ async function saveProgress() {
 
 const diaryFormRef = ref(null)
 const editingEntry = ref(null)
+const diaryFormTitleRef = ref(null)
+
+/**
+ * Editar um registro repovoa o formulário — que, no celular, fica bem acima da
+ * lista, fora da tela. Sem mover o foco, clicar em "Editar" no oitavo registro
+ * mudava algo que a pessoa não via, sem aviso nenhum. O título do formulário é
+ * focável (`tabindex="-1"`) justamente para servir de âncora aqui.
+ */
+async function startEditingEntry(entry) {
+  editingEntry.value = entry
+  await nextTick()
+  diaryFormTitleRef.value?.focus()
+  diaryFormTitleRef.value?.scrollIntoView({ block: 'nearest' })
+}
 const isSavingEntry = ref(false)
+const progressFieldErrors = ref({ currentPage: '', totalPages: '' })
+const progressFormRef = ref(null)
+
 const entryPendingDeletion = ref(null)
 
 /**
@@ -245,7 +271,7 @@ const diaryEntries = computed(() => item.value?.diary_entries ?? [])
       Voltar para a estante
     </BaseButton>
 
-    <SkeletonList v-if="isLoading && isFirstLoad" :count="2" label="Carregando o livro…" />
+    <SkeletonList v-if="isLoading && isFirstLoad" variant="detail" label="Carregando o livro…" />
 
     <EmptyState
       v-else-if="error"
@@ -329,13 +355,13 @@ const diaryEntries = computed(() => item.value?.diary_entries ?? [])
       <!-- Atualização de leitura (PUT) -->
       <section class="panel" aria-labelledby="progress-title">
         <h2 id="progress-title" class="detail__section-title">
-          <BaseIcon name="play" :size="18" class="detail__section-icon" />
+          <BaseIcon name="play" size="md" class="detail__section-icon" />
           Atualizar leitura
         </h2>
 
-        <form class="progress-form" novalidate @submit.prevent="saveProgress">
+        <form ref="progressFormRef" class="progress-form" novalidate @submit.prevent="saveProgress">
           <div v-if="progressError" class="detail__alert" role="alert">
-            <BaseIcon name="warning" :size="18" />
+            <BaseIcon name="warning" size="md" />
             <p><span class="detail__alert-prefix">Erro:</span> {{ progressError }}</p>
           </div>
 
@@ -354,6 +380,7 @@ const diaryEntries = computed(() => item.value?.diary_entries ?? [])
               min="0"
               :max="draft.totalPages || undefined"
               :disabled="draft.status === 'lido'"
+              :error="progressFieldErrors.currentPage"
             />
             <BaseField
               v-model="draft.totalPages"
@@ -362,6 +389,7 @@ const diaryEntries = computed(() => item.value?.diary_entries ?? [])
               inputmode="numeric"
               min="1"
               hint="Preencha para acompanhar a porcentagem."
+              :error="progressFieldErrors.totalPages"
             />
           </div>
 
@@ -405,7 +433,7 @@ const diaryEntries = computed(() => item.value?.diary_entries ?? [])
 
         <div class="diary">
           <div class="diary__form-wrapper">
-            <h3 class="diary__form-title">
+            <h3 ref="diaryFormTitleRef" class="diary__form-title" tabindex="-1">
               {{ editingEntry ? 'Editar registro' : 'Novo registro' }}
             </h3>
             <DiaryEntryForm
@@ -434,7 +462,7 @@ const diaryEntries = computed(() => item.value?.diary_entries ?? [])
                 :key="entry.id"
                 :entry="entry"
                 :busy="isSavingEntry || isDeletingEntry"
-                @edit="editingEntry = $event"
+                @edit="startEditingEntry"
                 @delete="entryPendingDeletion = $event"
               />
             </ul>

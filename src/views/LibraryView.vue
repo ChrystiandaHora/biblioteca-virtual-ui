@@ -178,6 +178,9 @@ async function confirmRemoval() {
 
 const resultAnnouncement = computed(() => {
   if (isLoading.value) return 'Atualizando a estante…'
+  // Antes de `libraryPage` pelo mesmo motivo da busca: os dados antigos
+  // sobrevivem ao erro, e anunciá-los contradiria o que está na tela.
+  if (error.value) return 'A estante não pôde ser carregada. Tente novamente.'
   if (!libraryPage.value) return ''
   const total = libraryPage.value.total
   if (total === 0) return 'Nenhum livro corresponde aos filtros aplicados.'
