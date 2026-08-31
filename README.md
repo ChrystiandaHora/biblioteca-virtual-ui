@@ -148,6 +148,11 @@ Livros já presentes na estante aparecem marcados, para não adicionar duas veze
 O termo buscado fica na URL, então o resultado é compartilhável e o botão
 "voltar" do navegador se comporta como esperado.
 
+Clicar em um resultado abre uma **prévia** com a ficha da obra e a sinopse, para
+decidir antes de adicionar. O diálogo abre na hora, com os dados que a busca já
+trouxe, e só a sinopse é carregada em segundo plano — ela exige uma consulta à
+Open Library que pode levar vários segundos.
+
 ### Minha estante
 Lista com **filtros combináveis** (estágio de leitura, texto livre em título ou
 autor, assunto, nota mínima), **ordenação** por seis campos em ambos os
@@ -327,7 +332,8 @@ Se a API estiver em outra porta, ela precisa autorizar a origem do front no
 2. Preencha nome, e-mail e uma senha de ao menos 8 caracteres — você entra
    direto, sem precisar digitar as credenciais de novo.
 3. Você cai na tela de **busca**. Pesquise um livro (ou clique em uma sugestão).
-4. Clique em **Adicionar** em um resultado.
+4. Clique em um resultado para ver a ficha e a sinopse, e adicione pelo próprio
+   diálogo (ou direto pelo botão **Adicionar** do cartão).
 5. Vá para **Estante**, troque o status para *Lendo*, e abra o livro pelo título.
 6. No detalhe, informe o total de páginas e a página atual, salve, e escreva a
    primeira citação no diário.

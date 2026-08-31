@@ -15,6 +15,7 @@ import { useRoute, useRouter } from 'vue-router'
 
 import BaseButton from '@/components/BaseButton.vue'
 import BaseIcon from '@/components/BaseIcon.vue'
+import BookPreviewModal from '@/components/BookPreviewModal.vue'
 import EmptyState from '@/components/EmptyState.vue'
 import PaginationNav from '@/components/PaginationNav.vue'
 import SearchResultItem from '@/components/SearchResultItem.vue'
@@ -38,8 +39,17 @@ const query = ref(typeof route.query.q === 'string' ? route.query.q : '')
 const page = ref(Number(route.query.page) || 1)
 const addingKey = ref(null)
 
-/** Chaves da Open Library já presentes na estante, para desabilitar o botão. */
-const ownedKeys = ref(new Set())
+/**
+ * Livros já presentes na estante: chave da Open Library → id do item.
+ *
+ * Era um `Set` só de chaves, o que bastava para desabilitar o botão. Virou
+ * `Map` porque a prévia oferece "Abrir na estante", e para montar esse link
+ * precisamos do id do item.
+ */
+const ownedBooks = ref(new Map())
+
+/** Livro exibido na prévia; `null` fecha o diálogo. */
+const previewBook = ref(null)
 
 const {
   data: results,
@@ -86,13 +96,13 @@ const resultAnnouncement = computed(() => {
 })
 
 /**
- * Carrega as chaves da estante para marcar o que já foi adicionado.
+ * Carrega os livros da estante para marcar o que já foi adicionado.
  * Falha aqui não é bloqueante: no pior caso a API responde 409 no clique.
  */
-async function loadOwnedKeys() {
+async function loadOwnedBooks() {
   try {
     const firstPage = await fetchLibrary({ pageSize: 100 })
-    ownedKeys.value = new Set(firstPage.items.map((item) => item.open_library_key))
+    ownedBooks.value = new Map(firstPage.items.map((item) => [item.open_library_key, item.id]))
   } catch {
     /* segue sem a marcação */
   }
@@ -128,10 +138,17 @@ function useSuggestion(suggestion) {
   submitSearch()
 }
 
+/** Marca o livro como presente na estante, guardando o id quando ele é conhecido. */
+function rememberOwned(key, id = null) {
+  ownedBooks.value = new Map(ownedBooks.value).set(key, id)
+}
+
 async function handleAdd(book) {
   addingKey.value = book.open_library_key
   try {
-    await addToLibrary({
+    // O POST devolve o item criado (LibraryItemDetail), então aproveitamos o id
+    // para que "Abrir na estante" funcione sem recarregar a estante inteira.
+    const created = await addToLibrary({
       open_library_key: book.open_library_key,
       title: book.title,
       authors: book.authors,
@@ -140,11 +157,13 @@ async function handleAdd(book) {
       subjects: book.subjects,
       total_pages: book.page_estimate ?? null,
     })
-    ownedKeys.value = new Set([...ownedKeys.value, book.open_library_key])
+    rememberOwned(book.open_library_key, created?.id ?? null)
     toasts.success(`"${book.title}" foi adicionado à sua estante.`)
   } catch (caught) {
     if (caught instanceof ApiError && caught.status === 409) {
-      ownedKeys.value = new Set([...ownedKeys.value, book.open_library_key])
+      // Já estava lá, mas o 409 não diz qual é o id: sem ele o rodapé da prévia
+      // cai no estado "Na estante" desabilitado, que é honesto.
+      rememberOwned(book.open_library_key, ownedBooks.value.get(book.open_library_key) ?? null)
       toasts.info(`"${book.title}" já estava na sua estante.`)
     } else {
       toasts.error(caught.message)
@@ -155,7 +174,7 @@ async function handleAdd(book) {
 }
 
 onMounted(() => {
-  loadOwnedKeys()
+  loadOwnedBooks()
   if (query.value.trim().length >= 2) load()
 })
 
@@ -271,9 +290,10 @@ watch(
           v-for="book in results.results"
           :key="book.open_library_key"
           :book="book"
-          :already-in-library="ownedKeys.has(book.open_library_key)"
+          :already-in-library="ownedBooks.has(book.open_library_key)"
           :busy="addingKey === book.open_library_key"
           @add="handleAdd"
+          @details="previewBook = $event"
         />
       </ul>
 
@@ -286,6 +306,20 @@ watch(
         @change="changePage"
       />
     </section>
+
+    <!-- Fora dos ramos condicionais acima: a prévia não pertence a nenhum
+         estado da lista, e o `:key` remonta o componente ao trocar de livro,
+         zerando a busca da sinopse. -->
+    <BookPreviewModal
+      v-if="previewBook"
+      :key="previewBook.open_library_key"
+      :book="previewBook"
+      :already-in-library="ownedBooks.has(previewBook.open_library_key)"
+      :library-item-id="ownedBooks.get(previewBook.open_library_key) ?? null"
+      :busy="addingKey === previewBook.open_library_key"
+      @add="handleAdd"
+      @close="previewBook = null"
+    />
   </div>
 </template>
 
