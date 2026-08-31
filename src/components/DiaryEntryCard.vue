@@ -50,7 +50,7 @@ const excerpt = computed(() => {
   <li class="entry card">
     <div class="entry__head">
       <p class="entry__kind">
-        <BaseIcon :name="meta.icon" :size="15" class="entry__kind-icon" />
+        <BaseIcon :name="meta.icon" size="sm" class="entry__kind-icon" />
         {{ meta.label }}
       </p>
 

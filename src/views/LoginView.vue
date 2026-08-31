@@ -73,7 +73,7 @@ async function handleSubmit() {
     <div class="auth__card panel">
       <header class="auth__header">
         <span class="auth__logo">
-          <BaseIcon name="books" :size="28" />
+          <BaseIcon name="books" size="xl" />
         </span>
         <h1 class="auth__title">Entrar na Biblioteca Virtual</h1>
         <p class="auth__subtitle">
@@ -91,7 +91,7 @@ async function handleSubmit() {
           role="alert"
           tabindex="-1"
         >
-          <BaseIcon name="warning" :size="18" />
+          <BaseIcon name="warning" size="md" />
           <p><span class="auth__alert-prefix">Erro:</span> {{ formError }}</p>
         </div>
 
@@ -114,7 +114,7 @@ async function handleSubmit() {
             :error="fieldErrors.password"
           />
           <button type="button" class="auth__reveal" @click="showPassword = !showPassword">
-            <BaseIcon :name="showPassword ? 'moon' : 'sun'" :size="15" />
+            <BaseIcon :name="showPassword ? 'eyeSlash' : 'eye'" size="sm" />
             {{ showPassword ? 'Ocultar senha' : 'Mostrar senha' }}
           </button>
         </div>

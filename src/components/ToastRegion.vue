@@ -32,7 +32,7 @@ const PREFIXES = { success: 'Sucesso:', error: 'Erro:', info: 'Aviso:' }
     <!-- Mensagens tranquilas (sucesso/informação). -->
     <ul class="toast-list" role="status" aria-live="polite" aria-relevant="additions">
       <li v-for="toast in politeToasts" :key="toast.id" :class="['toast', `toast--${toast.tone}`]">
-        <BaseIcon :name="ICONS[toast.tone]" :size="20" class="toast__icon" />
+        <BaseIcon :name="ICONS[toast.tone]" size="md" class="toast__icon" />
         <p class="toast__message">
           <!-- O prefixo textual é o que garante que o significado não venha
                apenas da cor do ícone. -->
@@ -53,7 +53,7 @@ const PREFIXES = { success: 'Sucesso:', error: 'Erro:', info: 'Aviso:' }
     <!-- Mensagens urgentes (erros). -->
     <ul class="toast-list" role="alert" aria-live="assertive" aria-relevant="additions">
       <li v-for="toast in assertiveToasts" :key="toast.id" :class="['toast', `toast--${toast.tone}`]">
-        <BaseIcon :name="ICONS[toast.tone]" :size="20" class="toast__icon" />
+        <BaseIcon :name="ICONS[toast.tone]" size="md" class="toast__icon" />
         <p class="toast__message">
           <span class="toast__prefix">{{ PREFIXES[toast.tone] }}</span>
           {{ toast.message }}

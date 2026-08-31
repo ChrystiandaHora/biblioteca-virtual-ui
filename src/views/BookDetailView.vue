@@ -310,7 +310,7 @@ const diaryEntries = computed(() => item.value?.diary_entries ?? [])
       <!-- Sinopse vinda da API externa -->
       <section v-if="synopsis || isLoadingSynopsis" class="panel" aria-labelledby="synopsis-title">
         <h2 id="synopsis-title" class="detail__section-title">
-          <BaseIcon name="review" :size="18" class="detail__section-icon" />
+          <BaseIcon name="review" size="md" class="detail__section-icon" />
           Sinopse
         </h2>
         <p v-if="isLoadingSynopsis" class="detail__loading" role="status">
@@ -389,7 +389,7 @@ const diaryEntries = computed(() => item.value?.diary_entries ?? [])
       <!-- Diário de leitura (POST / PUT / DELETE) -->
       <section class="panel" aria-labelledby="diary-title">
         <h2 id="diary-title" class="detail__section-title">
-          <BaseIcon name="note" :size="18" class="detail__section-icon" />
+          <BaseIcon name="note" size="md" class="detail__section-icon" />
           Diário de leitura
           <span class="detail__count tabular">
             {{ diaryEntries.length }}
@@ -439,7 +439,7 @@ const diaryEntries = computed(() => item.value?.diary_entries ?? [])
       <!-- Ação destrutiva isolada no fim da página -->
       <section class="panel detail__danger-zone" aria-labelledby="danger-title">
         <h2 id="danger-title" class="detail__section-title">
-          <BaseIcon name="warning" :size="18" class="detail__danger-icon" />
+          <BaseIcon name="warning" size="md" class="detail__danger-icon" />
           Remover da estante
         </h2>
         <p class="detail__danger-text">

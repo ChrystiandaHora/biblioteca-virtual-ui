@@ -42,7 +42,7 @@ const rows = computed(() =>
         :style="{ '--row-color': `var(${row.meta.colorToken})` }"
       >
         <span class="breakdown__label">
-          <BaseIcon :name="row.meta.icon" :size="16" class="breakdown__icon" />
+          <BaseIcon :name="row.meta.icon" size="sm" class="breakdown__icon" />
           {{ row.label }}
         </span>
 

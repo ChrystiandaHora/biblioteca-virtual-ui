@@ -105,7 +105,7 @@ defineExpose({ reset })
             @change="kind = option.value"
           />
           <span class="kind-option__body">
-            <BaseIcon :name="option.icon" :size="16" />
+            <BaseIcon :name="option.icon" size="sm" />
             {{ option.label }}
           </span>
         </label>

@@ -96,7 +96,7 @@ function handleLogout() {
   <header class="header">
     <div class="container header__inner">
       <RouterLink :to="{ name: 'painel' }" class="brand">
-        <BaseIcon name="books" :size="24" class="brand__icon" />
+        <BaseIcon name="books" size="lg" class="brand__icon" />
         <span class="brand__text">
           <span class="brand__name">Biblioteca Virtual</span>
           <span class="brand__tagline">Diário de leitura</span>
@@ -111,7 +111,7 @@ function handleLogout() {
               class="nav__link"
               :aria-current="route.name === item.name ? 'page' : undefined"
             >
-              <BaseIcon :name="item.icon" :size="20" />
+              <BaseIcon :name="item.icon" size="md" />
               <span class="nav__label">{{ item.label }}</span>
             </RouterLink>
           </li>
@@ -135,7 +135,7 @@ function handleLogout() {
                visualmente. Um ícone de pessoa aqui não indicava nada. -->
           <BaseIcon
             name="chevronDown"
-            :size="16"
+            size="sm"
             class="account__caret"
             :class="{ 'account__caret--open': isMenuOpen }"
           />

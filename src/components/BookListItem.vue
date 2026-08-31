@@ -64,15 +64,15 @@ const showProgress = computed(
 
       <p class="book-item__meta">
         <span v-if="item.first_publish_year" class="book-item__meta-entry">
-          <BaseIcon name="clock" :size="14" />
+          <BaseIcon name="clock" size="xs" />
           {{ item.first_publish_year }}
         </span>
         <span v-if="item.total_pages" class="book-item__meta-entry tabular">
-          <BaseIcon name="page" :size="14" />
+          <BaseIcon name="page" size="xs" />
           {{ item.total_pages.toLocaleString('pt-BR') }} páginas
         </span>
         <span v-if="item.diary_entry_count > 0" class="book-item__meta-entry">
-          <BaseIcon name="note" :size="14" />
+          <BaseIcon name="note" size="xs" />
           {{ item.diary_entry_count }}
           {{ item.diary_entry_count === 1 ? 'registro' : 'registros' }}
         </span>

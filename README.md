@@ -451,3 +451,7 @@ Distribuído sob a licença MIT — o texto completo está em
 Os dados de catálogo não pertencem a este projeto: são fornecidos pela
 Open Library / Internet Archive. Detalhes da licença no
 [README da API](https://github.com/ChrystiandaHora/biblioteca-virtual-api#api-externa-utilizada).
+
+Os ícones vêm do [Font Awesome Free](https://fontawesome.com/license/free),
+distribuídos sob **CC BY 4.0**, que exige atribuição — ela aparece no rodapé da
+aplicação.

@@ -9,6 +9,8 @@
 
 import { computed, useId } from 'vue'
 
+import BaseIcon from './BaseIcon.vue'
+
 const props = defineProps({
   label: { type: String, required: true },
   modelValue: { type: [String, Number, null], default: '' },
@@ -48,20 +50,7 @@ const describedBy = computed(() => (props.hint ? hintId : undefined))
           {{ option.label }}
         </option>
       </select>
-      <svg
-        class="select-field__chevron"
-        width="16"
-        height="16"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        aria-hidden="true"
-        focusable="false"
-      >
-        <path d="M6 9l6 6 6-6" />
-      </svg>
+      <BaseIcon class="select-field__chevron" name="chevronDown" size="sm" />
     </div>
   </div>
 </template>

@@ -60,9 +60,9 @@ const classes = computed(() => [
 
 <template>
   <RouterLink v-if="to && !isDisabled" :to="to" :class="classes" :aria-label="label || undefined">
-    <BaseIcon v-if="icon && iconPosition === 'start'" :name="icon" :size="size === 'sm' ? 16 : 18" />
+    <BaseIcon v-if="icon && iconPosition === 'start'" :name="icon" :size="size === 'sm' ? 'sm' : 'md'" />
     <span v-if="!iconOnly" class="btn__text"><slot /></span>
-    <BaseIcon v-if="icon && iconPosition === 'end'" :name="icon" :size="size === 'sm' ? 16 : 18" />
+    <BaseIcon v-if="icon && iconPosition === 'end'" :name="icon" :size="size === 'sm' ? 'sm' : 'md'" />
   </RouterLink>
 
   <button
@@ -77,13 +77,13 @@ const classes = computed(() => [
     <BaseIcon
       v-else-if="icon && iconPosition === 'start'"
       :name="icon"
-      :size="size === 'sm' ? 16 : 18"
+      :size="size === 'sm' ? 'sm' : 'md'"
     />
     <span v-if="!iconOnly" class="btn__text"><slot /></span>
     <BaseIcon
       v-if="!loading && icon && iconPosition === 'end'"
       :name="icon"
-      :size="size === 'sm' ? 16 : 18"
+      :size="size === 'sm' ? 'sm' : 'md'"
     />
   </button>
 </template>

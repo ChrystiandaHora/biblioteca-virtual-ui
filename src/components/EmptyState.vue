@@ -23,7 +23,7 @@ defineProps({
 <template>
   <div :class="['empty', `empty--${tone}`]">
     <span class="empty__icon">
-      <BaseIcon :name="tone === 'error' ? 'warning' : icon" :size="30" />
+      <BaseIcon :name="tone === 'error' ? 'warning' : icon" size="xl" />
     </span>
     <div class="empty__body">
       <p class="empty__title">

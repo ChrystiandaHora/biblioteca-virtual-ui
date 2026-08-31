@@ -191,7 +191,7 @@ const resultAnnouncement = computed(() => {
     <!-- Uma única fileira de filtros, acima de tudo o que ela afeta. -->
     <form class="filters panel" @submit.prevent="applyFilters">
       <h2 class="filters__title">
-        <BaseIcon name="filter" :size="18" class="filters__title-icon" />
+        <BaseIcon name="filter" size="md" class="filters__title-icon" />
         Filtrar e ordenar
       </h2>
 

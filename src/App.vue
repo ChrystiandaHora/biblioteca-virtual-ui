@@ -97,6 +97,14 @@ watch(
         — projeto do Internet Archive.
       </p>
       <p class="footer__text footer__text--muted">
+        Ícones por
+        <a href="https://fontawesome.com/license/free" target="_blank" rel="noopener noreferrer">
+          Font Awesome Free
+          <span class="sr-only">(abre em nova aba)</span>
+        </a>
+        — CC BY 4.0.
+      </p>
+      <p class="footer__text footer__text--muted">
         MVP acadêmico · Interface Vue 3 + API FastAPI + PostgreSQL
       </p>
     </div>

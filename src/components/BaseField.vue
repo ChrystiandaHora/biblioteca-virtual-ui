@@ -105,7 +105,7 @@ function onInput(event) {
     />
 
     <p v-if="error" :id="errorId" class="field__error">
-      <BaseIcon name="warning" :size="16" />
+      <BaseIcon name="warning" size="sm" />
       <span>{{ error }}</span>
     </p>
   </div>

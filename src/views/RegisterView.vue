@@ -93,7 +93,7 @@ async function handleSubmit() {
     <div class="auth__card panel">
       <header class="auth__header">
         <span class="auth__logo">
-          <BaseIcon name="books" :size="28" />
+          <BaseIcon name="books" size="xl" />
         </span>
         <h1 class="auth__title">Criar sua conta</h1>
         <p class="auth__subtitle">
@@ -145,7 +145,7 @@ async function handleSubmit() {
         />
 
         <button type="button" class="auth__reveal" @click="showPassword = !showPassword">
-          <BaseIcon :name="showPassword ? 'moon' : 'sun'" :size="15" />
+          <BaseIcon :name="showPassword ? 'eyeSlash' : 'eye'" size="sm" />
           {{ showPassword ? 'Ocultar as senhas' : 'Mostrar as senhas' }}
         </button>
 
