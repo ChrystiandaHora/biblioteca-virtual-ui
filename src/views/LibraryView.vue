@@ -70,6 +70,13 @@ const busyItemId = ref(null)
 const itemPendingRemoval = ref(null)
 const isRemoving = ref(false)
 
+/**
+ * Alvo de reserva do foco ao fechar a confirmação de remoção: o botão que
+ * abriu o diálogo é a lixeira da linha, e a própria confirmação a apaga. Sem
+ * isto o foco cairia no <body>.
+ */
+const resultsRef = ref(null)
+
 const hasActiveFilters = computed(
   () =>
     Boolean(filters.value.q) ||
@@ -114,8 +121,10 @@ function applyFilters() {
 }
 
 function clearFilters() {
+  // Só zera os filtros: o watcher abaixo observa justamente esses campos e já
+  // chama `applyFilters`. Chamar aqui também dispararia duas requisições e dois
+  // `router.replace` para a mesma ação.
   filters.value = { q: '', status: '', minRating: '', orderBy: 'recentes', direction: 'desc' }
-  applyFilters()
   toasts.info('Filtros limpos.')
 }
 
@@ -169,6 +178,9 @@ async function confirmRemoval() {
 
 const resultAnnouncement = computed(() => {
   if (isLoading.value) return 'Atualizando a estante…'
+  // Antes de `libraryPage` pelo mesmo motivo da busca: os dados antigos
+  // sobrevivem ao erro, e anunciá-los contradiria o que está na tela.
+  if (error.value) return 'A estante não pôde ser carregada. Tente novamente.'
   if (!libraryPage.value) return ''
   const total = libraryPage.value.total
   if (total === 0) return 'Nenhum livro corresponde aos filtros aplicados.'
@@ -191,7 +203,7 @@ const resultAnnouncement = computed(() => {
     <!-- Uma única fileira de filtros, acima de tudo o que ela afeta. -->
     <form class="filters panel" @submit.prevent="applyFilters">
       <h2 class="filters__title">
-        <BaseIcon name="filter" :size="18" class="filters__title-icon" />
+        <BaseIcon name="filter" size="md" class="filters__title-icon" />
         Filtrar e ordenar
       </h2>
 
@@ -264,9 +276,11 @@ const resultAnnouncement = computed(() => {
 
     <section
       v-else-if="libraryPage"
+      ref="resultsRef"
       class="library__results"
       :class="{ 'library__results--refreshing': isLoading }"
       aria-label="Livros da estante"
+      tabindex="-1"
     >
       <ul class="library__list">
         <BookListItem
@@ -296,6 +310,7 @@ const resultAnnouncement = computed(() => {
       alert
       title="Remover este livro da estante?"
       :description="`“${itemPendingRemoval.title}” e todos os registros do diário dele serão apagados. Não há como desfazer.`"
+      :return-focus-to="() => resultsRef"
       @close="itemPendingRemoval = null"
     >
       <p class="library__confirm-detail">

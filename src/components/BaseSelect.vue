@@ -9,6 +9,8 @@
 
 import { computed, useId } from 'vue'
 
+import BaseIcon from './BaseIcon.vue'
+
 const props = defineProps({
   label: { type: String, required: true },
   modelValue: { type: [String, Number, null], default: '' },
@@ -48,20 +50,7 @@ const describedBy = computed(() => (props.hint ? hintId : undefined))
           {{ option.label }}
         </option>
       </select>
-      <svg
-        class="select-field__chevron"
-        width="16"
-        height="16"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        aria-hidden="true"
-        focusable="false"
-      >
-        <path d="M6 9l6 6 6-6" />
-      </svg>
+      <BaseIcon class="select-field__chevron" name="chevronDown" size="sm" />
     </div>
   </div>
 </template>
@@ -93,6 +82,9 @@ const describedBy = computed(() => (props.hint ? hintId : undefined))
   width: 100%;
   min-height: var(--target);
   padding: var(--space-2) var(--space-6) var(--space-2) var(--space-3);
+  /* O `<select>` é a única exceção ao `button { cursor: pointer }` do base.css:
+     o navegador lhe dá `cursor: default`, que não parece acionável. */
+  cursor: pointer;
   color: var(--text);
   background-color: var(--surface);
   border: 1px solid var(--border-strong);

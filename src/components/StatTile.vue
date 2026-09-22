@@ -38,7 +38,7 @@ const isPlaceholder = computed(() => typeof props.value !== 'number')
 <template>
   <div :class="['tile', { 'tile--hero': hero }]">
     <p class="tile__label">
-      <BaseIcon v-if="icon" :name="icon" :size="16" class="tile__icon" />
+      <BaseIcon v-if="icon" :name="icon" size="sm" class="tile__icon" />
       {{ label }}
     </p>
     <p class="tile__value" :class="{ 'tile__value--placeholder': isPlaceholder }">

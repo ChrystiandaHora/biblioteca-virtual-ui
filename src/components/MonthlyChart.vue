@@ -219,13 +219,24 @@ const hoveredBar = computed(() =>
         </g>
 
         <!-- Colunas. Cada uma é um <g> focável, com a faixa inteira como área
-             de acionamento — bem maior que a coluna fina. -->
+             de acionamento — bem maior que a coluna fina.
+
+             Sem `role="button"`: não há clique nem tecla a acionar aqui, e o
+             leitor de tela anunciaria "botão" para algo que Enter e Espaço não
+             fazem nada. O que a coluna oferece é o valor, e ele já está no
+             `aria-label` — `role="img"` descreve isso honestamente.
+
+             A regra abaixo existe para pegar `div` clicável. Aqui os handlers
+             não acionam nada: revelam a mesma dica que o `aria-label` já diz,
+             no hover e no foco. Trocá-los por um papel interativo seria mentir
+             para o leitor de tela só para calar o linter. -->
+        <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions -->
         <g
           v-for="bar in bars"
           :key="bar.month"
           class="chart__bar-group"
           tabindex="0"
-          role="button"
+          role="img"
           :aria-label="`${bar.longLabel}: ${bar.count} ${bar.count === 1 ? 'livro concluído' : 'livros concluídos'}`"
           @mouseenter="hoveredIndex = bar.index"
           @mouseleave="hoveredIndex = null"
@@ -417,7 +428,9 @@ const hoveredBar = computed(() =>
 }
 
 .chart__bar-group {
-  cursor: pointer;
+  /* A coluna é focável e mostra o valor, mas não é acionável — `pointer`
+     prometeria um clique que não existe. */
+  cursor: default;
 }
 
 .chart__bar-group:hover .chart__hit,

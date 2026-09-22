@@ -7,8 +7,13 @@
  *    o título real do diálogo;
  *  - foco entra ao abrir, circula preso dentro e volta ao gatilho ao fechar
  *    (ver `useFocusTrap`);
- *  - o conteúdo de fundo recebe `inert` no `App.vue`, então não é clicável nem
- *    alcançável por Tab;
+ *  - o fundo fica indisponível: `aria-modal="true"` o retira do cursor virtual
+ *    do leitor de tela, o backdrop cobre a tela inteira contra o clique e o
+ *    aprisionamento de foco impede que Tab saia do diálogo. (Não usamos
+ *    `inert`: o diálogo é renderizado dentro do próprio `<main>`, então
+ *    inertizar o fundo o inertizaria junto — e mover tudo para um Teleport
+ *    também apagaria as regiões vivas dos toasts enquanto o modal estivesse
+ *    aberto.);
  *  - Esc e o clique no fundo fecham;
  *  - a rolagem do body é travada enquanto o diálogo está aberto.
  *
@@ -23,12 +28,18 @@ import BaseButton from './BaseButton.vue'
 
 // As props são consumidas apenas no template, então não há necessidade de
 // guardar o retorno de `defineProps` em uma variável.
-defineProps({
+const props = defineProps({
   title: { type: String, required: true },
   /** Texto de apoio lido junto com o título. */
   description: { type: String, default: '' },
   /** `true` para confirmações destrutivas (role="alertdialog"). */
   alert: { type: Boolean, default: false },
+  /**
+   * Para onde mandar o foco quando o gatilho não sobrevive à ação — o caso
+   * normal em confirmação de exclusão, em que o botão que abriu o diálogo é
+   * removido junto com o item.
+   */
+  returnFocusTo: { type: Function, default: null },
 })
 
 const emit = defineEmits(['close'])
@@ -39,17 +50,28 @@ const descriptionId = `dialog-description-${uid}`
 
 const dialogRef = ref(null)
 
-useFocusTrap(dialogRef, { onEscape: () => emit('close') })
+useFocusTrap(dialogRef, {
+  onEscape: () => emit('close'),
+  fallbackFocus: () => props.returnFocusTo?.(),
+})
 
 let previousOverflow = ''
 
+let previousScrollbarGutter = ''
+
 onMounted(() => {
   previousOverflow = document.body.style.overflow
+  previousScrollbarGutter = document.body.style.scrollbarGutter
   document.body.style.overflow = 'hidden'
+  // Só esconder o overflow devolve a largura da barra de rolagem ao layout, e
+  // a página inteira salta para o lado ao abrir o diálogo. `scrollbar-gutter`
+  // mantém o espaço reservado.
+  document.body.style.scrollbarGutter = 'stable'
 })
 
 onBeforeUnmount(() => {
   document.body.style.overflow = previousOverflow
+  document.body.style.scrollbarGutter = previousScrollbarGutter
 })
 
 /** Fecha só quando o clique nasce no próprio fundo, não em um filho. */

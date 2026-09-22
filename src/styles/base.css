@@ -91,6 +91,17 @@ ol {
   list-style: none;
 }
 
+/* O cabeçalho é fixo (64px + folga). Sem esta margem, qualquer alvo alcançado
+   por rolagem — âncora, campo focado por script, item de lista — pode parar
+   atrás dele (SC 2.4.11). Antes valia só para o <main>. */
+:target,
+[tabindex],
+h1,
+h2,
+h3 {
+  scroll-margin-top: 80px;
+}
+
 /* ---------------------------------------------------------------------------
    Foco visível — nunca removido.
 

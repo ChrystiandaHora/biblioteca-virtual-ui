@@ -32,7 +32,7 @@ const ICONS = {
 <template>
   <fieldset class="theme-picker">
     <legend class="theme-picker__legend">
-      <BaseIcon name="sparkle" :size="16" />
+      <BaseIcon name="sparkle" size="sm" />
       Tema visual
     </legend>
 
@@ -59,7 +59,7 @@ const ICONS = {
           </span>
           <span class="theme-option__labels">
             <span class="theme-option__name">
-              <BaseIcon :name="ICONS[theme.value]" :size="15" />
+              <BaseIcon :name="ICONS[theme.value]" size="sm" />
               {{ theme.label }}
             </span>
             <span class="theme-option__description">{{ theme.description }}</span>
@@ -67,7 +67,7 @@ const ICONS = {
           <BaseIcon
             v-if="themeStore.current === theme.value"
             name="check"
-            :size="18"
+            size="md"
             class="theme-option__check"
           />
         </span>

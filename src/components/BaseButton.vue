@@ -60,9 +60,9 @@ const classes = computed(() => [
 
 <template>
   <RouterLink v-if="to && !isDisabled" :to="to" :class="classes" :aria-label="label || undefined">
-    <BaseIcon v-if="icon && iconPosition === 'start'" :name="icon" :size="size === 'sm' ? 16 : 18" />
+    <BaseIcon v-if="icon && iconPosition === 'start'" :name="icon" :size="size === 'sm' ? 'sm' : 'md'" />
     <span v-if="!iconOnly" class="btn__text"><slot /></span>
-    <BaseIcon v-if="icon && iconPosition === 'end'" :name="icon" :size="size === 'sm' ? 16 : 18" />
+    <BaseIcon v-if="icon && iconPosition === 'end'" :name="icon" :size="size === 'sm' ? 'sm' : 'md'" />
   </RouterLink>
 
   <button
@@ -77,13 +77,13 @@ const classes = computed(() => [
     <BaseIcon
       v-else-if="icon && iconPosition === 'start'"
       :name="icon"
-      :size="size === 'sm' ? 16 : 18"
+      :size="size === 'sm' ? 'sm' : 'md'"
     />
     <span v-if="!iconOnly" class="btn__text"><slot /></span>
     <BaseIcon
       v-if="!loading && icon && iconPosition === 'end'"
       :name="icon"
-      :size="size === 'sm' ? 16 : 18"
+      :size="size === 'sm' ? 'sm' : 'md'"
     />
   </button>
 </template>
@@ -146,23 +146,28 @@ const classes = computed(() => [
 }
 
 .btn--icon-only.btn--sm {
-  /* O quadrado visível encolhe, mas a área de toque real segue em 44px
-     graças ao ::after abaixo. */
   width: 32px;
   min-width: 32px;
 }
 
-.btn--icon-only.btn--sm::after {
+/* Todo botão pequeno — não só os de ícone — mantém 44px de área acionável.
+   O quadrado visível encolhe para caber na densidade da lista; o retângulo
+   invisível abaixo devolve o piso ergonômico da casa (--target). Sem isto,
+   "Adicionar" na busca e "Anterior"/"Próxima" na paginação ficavam com 24px
+   de altura útil — e, abaixo de 30rem, a paginação esconde o texto e sobra
+   um alvo de ~42x24px. */
+.btn--sm {
+  position: relative;
+}
+
+.btn--sm::after {
   position: absolute;
   content: '';
   inset: 50% auto auto 50%;
-  width: var(--target);
+  width: 100%;
+  min-width: var(--target);
   height: var(--target);
   translate: -50% -50%;
-}
-
-.btn--icon-only.btn--sm {
-  position: relative;
 }
 
 /* -------------------------------- variantes ------------------------------- */

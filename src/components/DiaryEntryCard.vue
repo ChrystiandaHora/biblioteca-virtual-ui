@@ -50,7 +50,7 @@ const excerpt = computed(() => {
   <li class="entry card">
     <div class="entry__head">
       <p class="entry__kind">
-        <BaseIcon :name="meta.icon" :size="15" class="entry__kind-icon" />
+        <BaseIcon :name="meta.icon" size="sm" class="entry__kind-icon" />
         {{ meta.label }}
       </p>
 
@@ -142,6 +142,7 @@ const excerpt = computed(() => {
 .entry__content {
   font-size: var(--text-sm);
   white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 
 .entry__quote {
@@ -156,6 +157,7 @@ const excerpt = computed(() => {
 
 .entry__quote p {
   white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 
 .entry__actions {

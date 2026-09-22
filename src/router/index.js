@@ -63,6 +63,12 @@ const router = createRouter({
     // Voltar/avançar restaura a posição anterior; navegação nova começa no topo.
     if (savedPosition) return savedPosition
     if (to.hash) return { el: to.hash, top: 80 }
+    // Filtros e paginação gravam seu estado na URL com `router.replace`, o que
+    // é uma navegação de verdade para o roteador. Rolar ao topo aqui arrancaria
+    // a pessoa da lista que ela acabou de filtrar, então só rolamos quando a
+    // rota realmente muda. Comparamos `path` (e não `name`) porque abrir outro
+    // livro reusa o nome `livro` e é, sim, uma tela nova.
+    if (to.path === from.path) return false
     return { top: 0 }
   },
 })

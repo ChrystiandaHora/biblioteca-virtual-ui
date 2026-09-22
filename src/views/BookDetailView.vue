@@ -8,7 +8,7 @@
  * um enxame de anúncios em região viva.
  */
 
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import BaseButton from '@/components/BaseButton.vue'
@@ -127,20 +127,29 @@ const previewPercent = computed(() => {
 
 async function saveProgress() {
   progressError.value = ''
+  progressFieldErrors.value = { currentPage: '', totalPages: '' }
 
   const total = draft.value.totalPages === '' ? null : Number(draft.value.totalPages)
   const current = Number(draft.value.currentPage || 0)
 
+  // As três mensagens sempre souberam a qual campo pertencem; só não diziam.
+  // Escritas apenas no alerta do formulário, o input culpado ficava sem
+  // `aria-invalid`, sem borda de erro e sem `aria-describedby` — o BaseField
+  // suporta os três.
   if (total !== null && (!Number.isInteger(total) || total <= 0)) {
-    progressError.value = 'O total de páginas deve ser um número inteiro maior que zero.'
-    return
+    progressFieldErrors.value.totalPages =
+      'O total de páginas deve ser um número inteiro maior que zero.'
+  } else if (!Number.isInteger(current) || current < 0) {
+    progressFieldErrors.value.currentPage = 'A página atual deve ser um número inteiro positivo.'
+  } else if (total !== null && current > total) {
+    progressFieldErrors.value.currentPage = `A página atual não pode passar de ${total.toLocaleString('pt-BR')}.`
   }
-  if (!Number.isInteger(current) || current < 0) {
-    progressError.value = 'A página atual deve ser um número inteiro positivo.'
-    return
-  }
-  if (total !== null && current > total) {
-    progressError.value = `A página atual não pode passar de ${total.toLocaleString('pt-BR')}.`
+
+  const firstError = Object.values(progressFieldErrors.value).find(Boolean)
+  if (firstError) {
+    progressError.value = firstError
+    await nextTick()
+    progressFormRef.value?.querySelector('[aria-invalid="true"]')?.focus()
     return
   }
 
@@ -165,8 +174,31 @@ async function saveProgress() {
 
 const diaryFormRef = ref(null)
 const editingEntry = ref(null)
+const diaryFormTitleRef = ref(null)
+
+/**
+ * Editar um registro repovoa o formulário — que, no celular, fica bem acima da
+ * lista, fora da tela. Sem mover o foco, clicar em "Editar" no oitavo registro
+ * mudava algo que a pessoa não via, sem aviso nenhum. O título do formulário é
+ * focável (`tabindex="-1"`) justamente para servir de âncora aqui.
+ */
+async function startEditingEntry(entry) {
+  editingEntry.value = entry
+  await nextTick()
+  diaryFormTitleRef.value?.focus()
+  diaryFormTitleRef.value?.scrollIntoView({ block: 'nearest' })
+}
 const isSavingEntry = ref(false)
+const progressFieldErrors = ref({ currentPage: '', totalPages: '' })
+const progressFormRef = ref(null)
+
 const entryPendingDeletion = ref(null)
+
+/**
+ * Reserva de foco da confirmação de exclusão: o botão de apagar vive dentro do
+ * cartão que a ação remove, então ele não existe mais quando o diálogo fecha.
+ */
+const diaryListRef = ref(null)
 const isDeletingEntry = ref(false)
 
 async function handleDiarySubmit(payload) {
@@ -239,7 +271,7 @@ const diaryEntries = computed(() => item.value?.diary_entries ?? [])
       Voltar para a estante
     </BaseButton>
 
-    <SkeletonList v-if="isLoading && isFirstLoad" :count="2" label="Carregando o livro…" />
+    <SkeletonList v-if="isLoading && isFirstLoad" variant="detail" label="Carregando o livro…" />
 
     <EmptyState
       v-else-if="error"
@@ -310,7 +342,7 @@ const diaryEntries = computed(() => item.value?.diary_entries ?? [])
       <!-- Sinopse vinda da API externa -->
       <section v-if="synopsis || isLoadingSynopsis" class="panel" aria-labelledby="synopsis-title">
         <h2 id="synopsis-title" class="detail__section-title">
-          <BaseIcon name="review" :size="18" class="detail__section-icon" />
+          <BaseIcon name="review" size="md" class="detail__section-icon" />
           Sinopse
         </h2>
         <p v-if="isLoadingSynopsis" class="detail__loading" role="status">
@@ -323,13 +355,13 @@ const diaryEntries = computed(() => item.value?.diary_entries ?? [])
       <!-- Atualização de leitura (PUT) -->
       <section class="panel" aria-labelledby="progress-title">
         <h2 id="progress-title" class="detail__section-title">
-          <BaseIcon name="play" :size="18" class="detail__section-icon" />
+          <BaseIcon name="play" size="md" class="detail__section-icon" />
           Atualizar leitura
         </h2>
 
-        <form class="progress-form" novalidate @submit.prevent="saveProgress">
+        <form ref="progressFormRef" class="progress-form" novalidate @submit.prevent="saveProgress">
           <div v-if="progressError" class="detail__alert" role="alert">
-            <BaseIcon name="warning" :size="18" />
+            <BaseIcon name="warning" size="md" />
             <p><span class="detail__alert-prefix">Erro:</span> {{ progressError }}</p>
           </div>
 
@@ -348,6 +380,7 @@ const diaryEntries = computed(() => item.value?.diary_entries ?? [])
               min="0"
               :max="draft.totalPages || undefined"
               :disabled="draft.status === 'lido'"
+              :error="progressFieldErrors.currentPage"
             />
             <BaseField
               v-model="draft.totalPages"
@@ -356,6 +389,7 @@ const diaryEntries = computed(() => item.value?.diary_entries ?? [])
               inputmode="numeric"
               min="1"
               hint="Preencha para acompanhar a porcentagem."
+              :error="progressFieldErrors.totalPages"
             />
           </div>
 
@@ -389,7 +423,7 @@ const diaryEntries = computed(() => item.value?.diary_entries ?? [])
       <!-- Diário de leitura (POST / PUT / DELETE) -->
       <section class="panel" aria-labelledby="diary-title">
         <h2 id="diary-title" class="detail__section-title">
-          <BaseIcon name="note" :size="18" class="detail__section-icon" />
+          <BaseIcon name="note" size="md" class="detail__section-icon" />
           Diário de leitura
           <span class="detail__count tabular">
             {{ diaryEntries.length }}
@@ -399,7 +433,7 @@ const diaryEntries = computed(() => item.value?.diary_entries ?? [])
 
         <div class="diary">
           <div class="diary__form-wrapper">
-            <h3 class="diary__form-title">
+            <h3 ref="diaryFormTitleRef" class="diary__form-title" tabindex="-1">
               {{ editingEntry ? 'Editar registro' : 'Novo registro' }}
             </h3>
             <DiaryEntryForm
@@ -412,7 +446,7 @@ const diaryEntries = computed(() => item.value?.diary_entries ?? [])
             />
           </div>
 
-          <div class="diary__list-wrapper">
+          <div ref="diaryListRef" class="diary__list-wrapper" tabindex="-1">
             <h3 class="diary__list-title">Registros</h3>
 
             <EmptyState
@@ -428,7 +462,7 @@ const diaryEntries = computed(() => item.value?.diary_entries ?? [])
                 :key="entry.id"
                 :entry="entry"
                 :busy="isSavingEntry || isDeletingEntry"
-                @edit="editingEntry = $event"
+                @edit="startEditingEntry"
                 @delete="entryPendingDeletion = $event"
               />
             </ul>
@@ -439,7 +473,7 @@ const diaryEntries = computed(() => item.value?.diary_entries ?? [])
       <!-- Ação destrutiva isolada no fim da página -->
       <section class="panel detail__danger-zone" aria-labelledby="danger-title">
         <h2 id="danger-title" class="detail__section-title">
-          <BaseIcon name="warning" :size="18" class="detail__danger-icon" />
+          <BaseIcon name="warning" size="md" class="detail__danger-icon" />
           Remover da estante
         </h2>
         <p class="detail__danger-text">
@@ -458,6 +492,7 @@ const diaryEntries = computed(() => item.value?.diary_entries ?? [])
         alert
         title="Apagar este registro do diário?"
         description="O texto será removido permanentemente."
+        :return-focus-to="() => diaryListRef"
         @close="entryPendingDeletion = null"
       >
         <blockquote class="detail__confirm-quote">
@@ -621,6 +656,8 @@ const diaryEntries = computed(() => item.value?.diary_entries ?? [])
   font-size: var(--text-sm);
   line-height: 1.7;
   white-space: pre-line;
+  /* Texto externo da Open Library: não temos controle sobre o que vem. */
+  overflow-wrap: anywhere;
 }
 
 .detail__loading {
@@ -658,11 +695,59 @@ const diaryEntries = computed(() => item.value?.diary_entries ?? [])
   gap: var(--space-4);
 }
 
+/* Os três campos têm dicas de alturas diferentes — duas linhas no estágio, uma
+   no total de páginas, nenhuma na página atual. Como cada campo empilha
+   `rótulo → dica → controle` por conta própria, os controles paravam em três
+   alturas distintas.
+
+   O subgrid resolve na raiz: as quatro faixas (rótulo · dica · controle · erro)
+   passam a ser as MESMAS para as três colunas, então a faixa da dica tem a
+   altura da maior e os controles se alinham sozinhos. */
 .progress-form__grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
   gap: var(--space-3);
   align-items: start;
+}
+
+/* O `@supports` não é zelo decorativo: sem subgrid, o `gap: 0` abaixo valeria
+   de verdade e espremeria rótulo, dica e controle uns nos outros. Sem suporte,
+   fica o empilhamento antigo — desalinhado, mas legível. */
+@supports (grid-template-rows: subgrid) {
+  .progress-form__grid {
+    grid-template-rows: auto auto auto auto;
+    gap: var(--space-2) var(--space-3);
+  }
+
+  .progress-form__grid > :deep(.field),
+  .progress-form__grid > :deep(.select-field) {
+    display: grid;
+    grid-row: span 4;
+    grid-template-rows: subgrid;
+    /* No eixo subgridado quem manda é o `row-gap` do pai. */
+    gap: 0;
+  }
+
+  .progress-form__grid :deep(.field__label),
+  .progress-form__grid :deep(.select-field__label) {
+    grid-row: 1;
+  }
+
+  .progress-form__grid :deep(.field__hint),
+  .progress-form__grid :deep(.select-field__hint) {
+    grid-row: 2;
+  }
+
+  .progress-form__grid :deep(.field__control),
+  .progress-form__grid :deep(.select-field__wrapper) {
+    grid-row: 3;
+  }
+
+  /* O erro ganha faixa própria, compartilhada pelas três colunas: uma mensagem
+     em qualquer campo empurra a linha inteira, e os controles seguem alinhados. */
+  .progress-form__grid :deep(.field__error) {
+    grid-row: 4;
+  }
 }
 
 .progress-form__preview {
@@ -743,6 +828,7 @@ const diaryEntries = computed(() => item.value?.diary_entries ?? [])
   margin: 0;
   font-size: var(--text-sm);
   font-style: italic;
+  overflow-wrap: anywhere;
   border-left: 3px solid var(--border-strong);
 }
 </style>

@@ -137,9 +137,9 @@ function go(target) {
 }
 
 .pagination__number {
+  position: relative;
   min-width: var(--target-min);
   min-height: var(--target-min);
-  /* O quadrado visível tem 24px, mas a área clicável real chega a 44px. */
   padding: var(--space-2) var(--space-3);
   font-size: var(--text-sm);
   font-weight: 600;
@@ -147,6 +147,19 @@ function go(target) {
   background-color: transparent;
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
+}
+
+/* O comentário antigo prometia 44px de área clicável, mas não havia nada que
+   entregasse isso — o botão media cerca de 34x40px. A altura vai a 44px pelo
+   retângulo invisível; a largura acompanha o botão de propósito, para não
+   comer os 8px de separação entre números vizinhos. */
+.pagination__number::after {
+  position: absolute;
+  content: '';
+  inset: 50% auto auto 50%;
+  width: 100%;
+  height: var(--target);
+  translate: -50% -50%;
 }
 
 .pagination__number:hover:not(:disabled) {

@@ -29,7 +29,7 @@ const text = computed(() => (props.short ? meta.value.short : meta.value.label))
     class="badge status-badge"
     :style="{ '--badge-color': `var(${meta.colorToken})`, '--badge-bg': `var(${meta.bgToken})` }"
   >
-    <BaseIcon :name="meta.icon" :size="14" class="status-badge__icon" />
+    <BaseIcon :name="meta.icon" size="xs" class="status-badge__icon" />
     {{ text }}
   </span>
 </template>

@@ -32,7 +32,7 @@ const PREFIXES = { success: 'Sucesso:', error: 'Erro:', info: 'Aviso:' }
     <!-- Mensagens tranquilas (sucesso/informação). -->
     <ul class="toast-list" role="status" aria-live="polite" aria-relevant="additions">
       <li v-for="toast in politeToasts" :key="toast.id" :class="['toast', `toast--${toast.tone}`]">
-        <BaseIcon :name="ICONS[toast.tone]" :size="20" class="toast__icon" />
+        <BaseIcon :name="ICONS[toast.tone]" size="md" class="toast__icon" />
         <p class="toast__message">
           <!-- O prefixo textual é o que garante que o significado não venha
                apenas da cor do ícone. -->
@@ -53,7 +53,7 @@ const PREFIXES = { success: 'Sucesso:', error: 'Erro:', info: 'Aviso:' }
     <!-- Mensagens urgentes (erros). -->
     <ul class="toast-list" role="alert" aria-live="assertive" aria-relevant="additions">
       <li v-for="toast in assertiveToasts" :key="toast.id" :class="['toast', `toast--${toast.tone}`]">
-        <BaseIcon :name="ICONS[toast.tone]" :size="20" class="toast__icon" />
+        <BaseIcon :name="ICONS[toast.tone]" size="md" class="toast__icon" />
         <p class="toast__message">
           <span class="toast__prefix">{{ PREFIXES[toast.tone] }}</span>
           {{ toast.message }}
@@ -83,6 +83,15 @@ const PREFIXES = { success: 'Sucesso:', error: 'Erro:', info: 'Aviso:' }
   gap: var(--space-2);
   padding: var(--space-4);
   pointer-events: none;
+}
+
+/* Abaixo de 48rem a navegação é uma barra inferior fixa. Sem este recuo o
+   toast cobre a navegação — e erros não somem sozinhos (ttl 0), então a barra
+   ficaria bloqueada até alguém achar o botão de fechar. */
+@media (max-width: 47.999rem) {
+  .toast-region {
+    bottom: calc(var(--nav-mobile-height) + env(safe-area-inset-bottom, 0px));
+  }
 }
 
 @media (min-width: 40rem) {

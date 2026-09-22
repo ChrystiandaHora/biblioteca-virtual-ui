@@ -39,6 +39,14 @@
   --radius-lg: 14px;
   --radius-pill: 999px;
 
+  /* Ícones. A caixa é sempre quadrada; ícones mais estreitos ficam centrados
+     nela, e é isso que mantém o alinhamento em listas. */
+  --icon-xs: 14px;
+  --icon-sm: 16px;
+  --icon-md: 20px;
+  --icon-lg: 24px;
+  --icon-xl: 30px;
+
   /* Alvos de toque. 24px é o piso normativo do WCAG 2.2 (SC 2.5.8);
      44px é a meta ergonômica adotada como regra da casa. */
   --target-min: 24px;
@@ -49,6 +57,10 @@
 
   --container: 76rem;
   --transition: 160ms ease;
+
+  /* Altura da barra de navegação inferior (telas < 48rem). Quem flutua acima
+     dela — conteúdo e toasts — reserva esse espaço. */
+  --nav-mobile-height: 64px;
 }
 
 /* --------------------------------- claro --------------------------------- */

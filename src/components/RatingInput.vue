@@ -48,8 +48,8 @@ function select(value) {
       <BaseIcon
         v-for="value in VALUES"
         :key="value"
-        name="star"
-        :size="16"
+        :name="value <= current ? 'star' : 'starOutline'"
+        size="sm"
         :class="['rating__star', { 'rating__star--on': value <= current }]"
       />
     </span>
@@ -70,8 +70,8 @@ function select(value) {
           @click="select(value)"
         />
         <BaseIcon
-          name="star"
-          :size="24"
+          :name="value <= current ? 'star' : 'starOutline'"
+          size="lg"
           :class="['rating__star', { 'rating__star--on': value <= current }]"
         />
         <!-- O rótulo textual é o nome acessível de cada opção; sem ele o
@@ -143,10 +143,12 @@ function select(value) {
   color: var(--border-strong);
 }
 
-/* Estrela marcada muda de cor E ganha preenchimento — dois canais, não só cor. */
+/* Estrela marcada muda de cor E ganha preenchimento — dois canais, não só cor.
+   O preenchimento vem da geometria (ícone cheio vs. contornado), não de um
+   override de `fill`: os ícones do Font Awesome já são sólidos, então pintar
+   `fill` aqui não distinguiria nada e a nota passaria a depender só da cor. */
 .rating__star--on {
   color: var(--st-lendo);
-  fill: var(--st-lendo);
 }
 
 .rating__value {

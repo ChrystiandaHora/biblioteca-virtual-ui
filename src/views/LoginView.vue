@@ -37,6 +37,22 @@ const errorRef = ref(null)
 
 const fieldErrors = ref({ email: '', password: '' })
 
+const formRef = ref(null)
+
+/**
+ * Leva o foco ao primeiro campo inválido.
+ *
+ * Sem isto, enviar o formulário vazio era completamente silencioso para quem
+ * usa leitor de tela: as mensagens apareciam nos campos, mas o foco continuava
+ * no botão e nada entrava em região viva. O caminho de erro da API já fazia
+ * isso; a validação local não fazia.
+ */
+async function focusFirstInvalidField() {
+  await nextTick()
+  formRef.value?.querySelector('[aria-invalid="true"]')?.focus()
+}
+
+
 function validate() {
   fieldErrors.value = {
     email: email.value.trim() ? '' : 'Informe o e-mail cadastrado.',
@@ -47,7 +63,10 @@ function validate() {
 
 async function handleSubmit() {
   formError.value = ''
-  if (!validate()) return
+  if (!validate()) {
+    await focusFirstInvalidField()
+    return
+  }
 
   isSubmitting.value = true
   try {
@@ -73,7 +92,7 @@ async function handleSubmit() {
     <div class="auth__card panel">
       <header class="auth__header">
         <span class="auth__logo">
-          <BaseIcon name="books" :size="28" />
+          <BaseIcon name="books" size="xl" />
         </span>
         <h1 class="auth__title">Entrar na Biblioteca Virtual</h1>
         <p class="auth__subtitle">
@@ -83,7 +102,7 @@ async function handleSubmit() {
 
       <!-- `novalidate` porque validamos e exibimos as mensagens por conta
            própria, em português e ligadas ao campo por aria-describedby. -->
-      <form class="auth__form" novalidate @submit.prevent="handleSubmit">
+      <form ref="formRef" class="auth__form" novalidate @submit.prevent="handleSubmit">
         <div
           v-if="formError"
           ref="errorRef"
@@ -91,7 +110,7 @@ async function handleSubmit() {
           role="alert"
           tabindex="-1"
         >
-          <BaseIcon name="warning" :size="18" />
+          <BaseIcon name="warning" size="md" />
           <p><span class="auth__alert-prefix">Erro:</span> {{ formError }}</p>
         </div>
 
@@ -114,7 +133,7 @@ async function handleSubmit() {
             :error="fieldErrors.password"
           />
           <button type="button" class="auth__reveal" @click="showPassword = !showPassword">
-            <BaseIcon :name="showPassword ? 'moon' : 'sun'" :size="15" />
+            <BaseIcon :name="showPassword ? 'eyeSlash' : 'eye'" size="sm" />
             {{ showPassword ? 'Ocultar senha' : 'Mostrar senha' }}
           </button>
         </div>

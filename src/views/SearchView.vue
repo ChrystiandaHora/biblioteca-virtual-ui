@@ -15,6 +15,7 @@ import { useRoute, useRouter } from 'vue-router'
 
 import BaseButton from '@/components/BaseButton.vue'
 import BaseIcon from '@/components/BaseIcon.vue'
+import BookPreviewModal from '@/components/BookPreviewModal.vue'
 import EmptyState from '@/components/EmptyState.vue'
 import PaginationNav from '@/components/PaginationNav.vue'
 import SearchResultItem from '@/components/SearchResultItem.vue'
@@ -38,8 +39,17 @@ const query = ref(typeof route.query.q === 'string' ? route.query.q : '')
 const page = ref(Number(route.query.page) || 1)
 const addingKey = ref(null)
 
-/** Chaves da Open Library já presentes na estante, para desabilitar o botão. */
-const ownedKeys = ref(new Set())
+/**
+ * Livros já presentes na estante: chave da Open Library → id do item.
+ *
+ * Era um `Set` só de chaves, o que bastava para desabilitar o botão. Virou
+ * `Map` porque a prévia oferece "Abrir na estante", e para montar esse link
+ * precisamos do id do item.
+ */
+const ownedBooks = ref(new Map())
+
+/** Livro exibido na prévia; `null` fecha o diálogo. */
+const previewBook = ref(null)
 
 const {
   data: results,
@@ -53,9 +63,32 @@ const {
 
 const hasSearched = ref(Boolean(query.value.trim()))
 
+/**
+ * Erro de validação do campo de busca.
+ *
+ * Era um toast, que aparece no canto oposto da tela — longe do campo que
+ * precisa ser corrigido, e sem marcar o próprio campo como inválido. A regra
+ * ("mínimo de 2 caracteres") já está escrita logo abaixo do input; o erro
+ * pertence ao mesmo lugar.
+ */
+const queryError = ref('')
+
+/** Para devolver o foco ao campo quando a validação falha. */
+const queryInputRef = ref(null)
+
+// O erro some assim que a pessoa começa a corrigir: manter a mensagem enquanto
+// o campo já está válido seria ruído.
+watch(query, () => {
+  if (queryError.value) queryError.value = ''
+})
+
 /** Anúncio para leitores de tela quando a busca retorna. */
 const resultAnnouncement = computed(() => {
   if (isLoading.value) return 'Buscando…'
+  // O erro vem antes do resultado de propósito: `results` guarda a busca
+  // anterior bem-sucedida, então sem este ramo a região viva continuaria
+  // anunciando a contagem antiga enquanto a tela mostra a falha.
+  if (error.value) return 'A busca não pôde ser concluída. Tente novamente.'
   if (!results.value) return ''
   const total = results.value.total
   if (total === 0) return `Nenhum livro encontrado para "${results.value.query}".`
@@ -63,13 +96,13 @@ const resultAnnouncement = computed(() => {
 })
 
 /**
- * Carrega as chaves da estante para marcar o que já foi adicionado.
+ * Carrega os livros da estante para marcar o que já foi adicionado.
  * Falha aqui não é bloqueante: no pior caso a API responde 409 no clique.
  */
-async function loadOwnedKeys() {
+async function loadOwnedBooks() {
   try {
     const firstPage = await fetchLibrary({ pageSize: 100 })
-    ownedKeys.value = new Set(firstPage.items.map((item) => item.open_library_key))
+    ownedBooks.value = new Map(firstPage.items.map((item) => [item.open_library_key, item.id]))
   } catch {
     /* segue sem a marcação */
   }
@@ -78,9 +111,11 @@ async function loadOwnedKeys() {
 function runSearch() {
   const trimmed = query.value.trim()
   if (trimmed.length < 2) {
-    toasts.error('Digite pelo menos 2 caracteres para buscar.')
+    queryError.value = 'Digite pelo menos 2 caracteres para buscar.'
+    queryInputRef.value?.focus()
     return
   }
+  queryError.value = ''
   hasSearched.value = true
   // A busca fica na URL: o resultado é compartilhável e o botão "voltar" do
   // navegador se comporta como a pessoa espera.
@@ -103,10 +138,17 @@ function useSuggestion(suggestion) {
   submitSearch()
 }
 
+/** Marca o livro como presente na estante, guardando o id quando ele é conhecido. */
+function rememberOwned(key, id = null) {
+  ownedBooks.value = new Map(ownedBooks.value).set(key, id)
+}
+
 async function handleAdd(book) {
   addingKey.value = book.open_library_key
   try {
-    await addToLibrary({
+    // O POST devolve o item criado (LibraryItemDetail), então aproveitamos o id
+    // para que "Abrir na estante" funcione sem recarregar a estante inteira.
+    const created = await addToLibrary({
       open_library_key: book.open_library_key,
       title: book.title,
       authors: book.authors,
@@ -115,11 +157,13 @@ async function handleAdd(book) {
       subjects: book.subjects,
       total_pages: book.page_estimate ?? null,
     })
-    ownedKeys.value = new Set([...ownedKeys.value, book.open_library_key])
+    rememberOwned(book.open_library_key, created?.id ?? null)
     toasts.success(`"${book.title}" foi adicionado à sua estante.`)
   } catch (caught) {
     if (caught instanceof ApiError && caught.status === 409) {
-      ownedKeys.value = new Set([...ownedKeys.value, book.open_library_key])
+      // Já estava lá, mas o 409 não diz qual é o id: sem ele o rodapé da prévia
+      // cai no estado "Na estante" desabilitado, que é honesto.
+      rememberOwned(book.open_library_key, ownedBooks.value.get(book.open_library_key) ?? null)
       toasts.info(`"${book.title}" já estava na sua estante.`)
     } else {
       toasts.error(caught.message)
@@ -130,7 +174,7 @@ async function handleAdd(book) {
 }
 
 onMounted(() => {
-  loadOwnedKeys()
+  loadOwnedBooks()
   if (query.value.trim().length >= 2) load()
 })
 
@@ -161,20 +205,27 @@ watch(
         <label class="search__label" for="search-query">Título, autor ou assunto</label>
         <div class="search__input-row">
           <div class="search__input-wrapper">
-            <BaseIcon name="search" :size="18" class="search__input-icon" />
+            <BaseIcon name="search" size="md" class="search__input-icon" />
             <input
               id="search-query"
+              ref="queryInputRef"
               v-model="query"
               class="search__input"
+              :class="{ 'search__input--invalid': queryError }"
               type="search"
               name="q"
               autocomplete="off"
               placeholder="Ex.: Dom Casmurro"
-              aria-describedby="search-hint"
+              :aria-invalid="queryError ? 'true' : undefined"
+              :aria-describedby="queryError ? 'search-error search-hint' : 'search-hint'"
             />
           </div>
           <BaseButton type="submit" icon="search" :loading="isLoading">Buscar</BaseButton>
         </div>
+        <p v-if="queryError" id="search-error" class="search__error" role="alert">
+          <BaseIcon name="warning" size="sm" />
+          {{ queryError }}
+        </p>
         <p id="search-hint" class="search__hint">
           Mínimo de 2 caracteres. A busca é feita ao enviar o formulário.
         </p>
@@ -239,9 +290,10 @@ watch(
           v-for="book in results.results"
           :key="book.open_library_key"
           :book="book"
-          :already-in-library="ownedKeys.has(book.open_library_key)"
+          :already-in-library="ownedBooks.has(book.open_library_key)"
           :busy="addingKey === book.open_library_key"
           @add="handleAdd"
+          @details="previewBook = $event"
         />
       </ul>
 
@@ -254,6 +306,20 @@ watch(
         @change="changePage"
       />
     </section>
+
+    <!-- Fora dos ramos condicionais acima: a prévia não pertence a nenhum
+         estado da lista, e o `:key` remonta o componente ao trocar de livro,
+         zerando a busca da sinopse. -->
+    <BookPreviewModal
+      v-if="previewBook"
+      :key="previewBook.open_library_key"
+      :book="previewBook"
+      :already-in-library="ownedBooks.has(previewBook.open_library_key)"
+      :library-item-id="ownedBooks.get(previewBook.open_library_key) ?? null"
+      :busy="addingKey === previewBook.open_library_key"
+      @add="handleAdd"
+      @close="previewBook = null"
+    />
   </div>
 </template>
 
@@ -336,6 +402,21 @@ watch(
 .search__hint {
   font-size: var(--text-xs);
   color: var(--text-muted);
+}
+
+/* Mesma linguagem do BaseField: ícone + texto + cor, nunca só a cor. */
+.search__error {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--danger);
+}
+
+.search__input--invalid {
+  border-color: var(--danger);
+  border-width: 2px;
 }
 
 .search__suggestions {

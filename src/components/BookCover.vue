@@ -71,7 +71,7 @@ const initials = computed(() =>
     <!-- Substituto: também decorativo, pelo mesmo motivo da imagem real. -->
     <div v-else class="cover__fallback" aria-hidden="true">
       <span v-if="initials" class="cover__initials">{{ initials }}</span>
-      <BaseIcon v-else name="books" :size="size === 'sm' ? 20 : 28" />
+      <BaseIcon v-else name="books" :size="size === 'sm' ? 'md' : 'xl'" />
     </div>
   </div>
 </template>
